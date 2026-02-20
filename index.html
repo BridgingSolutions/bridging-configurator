@@ -39,7 +39,7 @@
 </head>
 <body>
   <header>
-    <h1>Startup Packs Bridging</h1>
+    <h1>Votre pack startup</h1>
     <div class="small">Sélectionnez un ou plusieurs packs puis ajustez les quantités.</div>
     <div id="status" class="small" style="margin-top:6px;"></div>
   </header>
@@ -65,7 +65,7 @@
       </div>
 
       <p style="opacity:0.75; margin-top:8px;">
-        Un email récapitulatif sera envoyé à votre adresse et à Bridging.
+        Un email récapitulatif sera envoyé à votre adresse e-mail et à l'équipe Bridging.
       </p>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
@@ -120,7 +120,7 @@
   const BASE_PRICE = {
     "Pack idéation": 5000,
     "Pack Prototype": 7000,
-    "Pack homologation": 12000,
+    "Pack homologation": 19000,
     "Pack Industrialisation": 12000
   };
 
@@ -279,7 +279,7 @@
       if(calc.isUpsell){
         const badge=document.createElement("div");
         badge.className="upsell-badge";
-        badge.textContent="Bonus 2% sur les ajouts";
+        badge.textContent="Bonus -2% sur les ajouts";
         card.appendChild(badge);
       }
 

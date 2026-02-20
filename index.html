@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bridging Packs Configurator</title>
+  <style>
+    :root {
+      --p-dark:#3a374f; --accent:#ad6c93; --bg:#f5f5f5;
+      --pink-soft:#eee7eb; --grey:#abb8c3; --white:#ffffff;
+      --danger:#dc3545; --gold:#d4af37;
+    }
+    body{font-family:Segoe UI,sans-serif;background:var(--bg);color:var(--p-dark);margin:0}
+    header{text-align:center;padding:28px 18px}
+    .wrap{max-width:1200px;margin:0 auto;padding:0 18px 160px}
+    .packs-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .pack-card{background:var(--white);border-radius:15px;padding:26px;border:3px solid transparent;transition:.2s;cursor:pointer}
+    .pack-card.selected{border-color:var(--p-dark);background:var(--pink-soft)}
+    .pack-card.disabled{border-color:var(--danger);background:#fff5f5;cursor:default}
+    .meta{font-size:.7rem;color:var(--grey);text-transform:uppercase}
+    .price-hero{font-size:2.2rem;font-weight:800;color:var(--accent);margin:8px 0}
+    .upsell-badge{background:var(--gold);color:#fff;font-size:.7rem;padding:4px 10px;border-radius:12px;font-weight:700;display:inline-block;margin-top:10px}
+    .details{margin-top:16px;display:none}
+    .pack-card.selected .details{display:block}
+    .group-title{font-size:.75rem;color:var(--accent);text-transform:uppercase;margin-top:14px;padding-bottom:6px;border-bottom:1px solid #ddd;font-weight:800}
+    .service-row{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:.92rem}
+    .qty-box{display:flex;align-items:center;background:var(--white);border:1px solid #ddd;border-radius:7px;overflow:hidden}
+    .qty-box button{border:none;background:#eee;padding:6px 12px;cursor:pointer}
+    .qty-box input{width:42px;border:none;text-align:center;font-weight:800;padding:6px 0;background:transparent}
+    .info-i{width:18px;height:18px;background:var(--grey);color:#fff;border-radius:50%;text-align:center;font-size:11px;line-height:18px;cursor:help;position:relative;flex-shrink:0;user-select:none}
+    .info-i:hover::after{content:attr(data-info);position:absolute;bottom:130%;left:-10px;background:var(--p-dark);color:#fff;padding:12px;border-radius:8px;width:280px;font-weight:400;font-size:.85rem;line-height:1.4;z-index:5000;box-shadow:0 8px 20px rgba(0,0,0,.35);pointer-events:none;white-space:normal;text-align:left}
+    .warn{color:var(--danger);font-size:.82rem;font-weight:800;margin-top:10px}
+    .footer-summary{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:92%;max-width:920px;background:var(--p-dark);color:#fff;padding:18px 22px;border-radius:18px;display:flex;justify-content:space-between;align-items:center;z-index:1000}
+    .btn{background:var(--accent);color:#fff;border:none;padding:14px 22px;border-radius:10px;font-weight:800;cursor:pointer}
+    .btn:disabled{background:var(--grey);cursor:not-allowed;opacity:.6}
+    .small{opacity:.75;font-size:.9rem}
+    @media (max-width:900px){.packs-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Startup Packs Bridging</h1>
+    <div class="small">Sélectionnez un ou plusieurs packs puis ajustez les quantités.</div>
+    <div id="status" class="small" style="margin-top:6px;"></div>
+  </header>
+
+  <div class="wrap">
+    <div id="grid" class="packs-grid"></div>
+  </div>
+
+  <div class="footer-summary">
+    <div>
+      <div id="statusText" class="small">Sélectionnez vos packs</div>
+      <div id="grandTotal" style="font-size:2.2rem;font-weight:900;">0 €</div>
+    </div>
+    <button id="btnBooking" class="btn" disabled>Réserver cet accompagnement</button>
+  </div>
+
+  <!-- Modal contact -->
+  <div id="leadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; padding:18px;">
+    <div style="max-width:720px; margin:40px auto; background:white; border-radius:16px; padding:22px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <h2 style="margin:0;">Vos informations</h2>
+        <button id="closeLeadModal" type="button" style="border:none; background:#eee; border-radius:10px; padding:8px 12px; cursor:pointer;">Fermer</button>
+      </div>
+
+      <p style="opacity:0.75; margin-top:8px;">
+        Un email récapitulatif sera envoyé à votre adresse et à Bridging.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+        <div>
+          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Entreprise</label>
+          <input id="fCompany" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
+        </div>
+        <div></div>
+
+        <div>
+          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Prénom</label>
+          <input id="fFirst" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Nom</label>
+          <input id="fLast" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Email</label>
+          <input id="fEmail" type="email" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Téléphone</label>
+          <input id="fPhone" type="tel" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Récapitulatif</label>
+        <textarea id="fRecap" rows="10" readonly style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;"></textarea>
+
+        <div style="display:flex; gap:10px; margin-top:10px; justify-content:flex-end;">
+          <button id="sendLead" type="button" style="border:none; background:#ad6c93; color:white; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer;">
+            Envoyer et réserver
+          </button>
+        </div>
+
+        <div id="leadHint" style="margin-top:10px; font-size:0.9rem; opacity:0.75;"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const SHEET_CSV_URL = "COLLE_ICI_TON_LIEN_CSV";
+  const BOOKING_URL = "https://outlook.office.com/book/RunionAccompagnementPackStratup@bridgingsolutions.fr/?ismsaljsauthenabled";
+  const WORKER_SEND_URL = "https://bridgingsolutions.cellie-piraud.workers.dev/send";
+
+  const DELTA_MIN = 1200;
+  const UPSELL_DISCOUNT = 0.02;
+
+  const BASE_PRICE = {
+    "Pack idéation": 5000,
+    "Pack Prototype": 7000,
+    "Pack homologation": 12000,
+    "Pack Industrialisation": 12000
+  };
+
+  function formatEUR(n){return Math.round(Number(n||0)).toLocaleString("fr-FR")+" €";}
+  function clampInt(v,min,max){const n=Math.floor(Number(v));if(!Number.isFinite(n))return min;return Math.max(min,Math.min(max,n));}
+  function parseNumber(v){
+    if(v===null||v===undefined) return 0;
+    const s=String(v).replace(/\u202f/g,"").replace(/\u00a0/g,"").replace(/€/g,"").replace(/\s/g,"").replace(",",".");
+    const n=Number(s); return Number.isFinite(n)?n:0;
+  }
+
+  function parseCsv(text){
+    const rows=[]; let i=0, field="", row=[], inQuotes=false;
+    while(i<text.length){
+      const ch=text[i];
+      if(ch === '"'){
+        if(inQuotes && text[i+1] === '"'){ field+='"'; i+=2; continue; }
+        inQuotes=!inQuotes; i++; continue;
+      }
+      if(!inQuotes && (ch===','||ch==='\n'||ch==='\r')){
+        if(ch==='\r' && text[i+1]==='\n') i++;
+        row.push(field); field="";
+        if(ch==='\n'||ch==='\r'){ if(row.length>1 || (row[0]||"").trim()!==""){ rows.push(row); } row=[]; }
+        i++; continue;
+      }
+      field+=ch; i++;
+    }
+    row.push(field); rows.push(row);
+    return rows.filter(r=>r.some(c=>String(c).trim()!==""));
+  }
+
+  function buildCatalogFromRows(rows){
+    const header=rows[0].map(h=>String(h).trim());
+    const idx=(name)=>header.indexOf(name);
+
+    const iPack=idx("PackName"), iGroup=idx("GroupName"), iService=idx("ServiceName"),
+          iInfo=idx("Info"), iUnit=idx("UnitPrice"), iDef=idx("DefaultQty");
+
+    if([iPack,iGroup,iService,iInfo,iUnit,iDef].some(x=>x<0)) throw new Error("Colonnes manquantes dans le CSV");
+
+    const packsMap=new Map();
+
+    for(let r=1;r<rows.length;r++){
+      const line=rows[r];
+      const packName=String(line[iPack]||"").trim();
+      const groupName=String(line[iGroup]||"").trim();
+      const serviceName=String(line[iService]||"").trim();
+      if(!packName||!groupName||!serviceName) continue;
+
+      const info=String(line[iInfo]||"").trim();
+      const unitPrice=parseNumber(line[iUnit]);
+      const defaultQty=clampInt(line[iDef],0,999);
+
+      if(!packsMap.has(packName)){
+        packsMap.set(packName,{ name: packName, basePrice: BASE_PRICE[packName] ?? 0, groups: [] });
+      }
+
+      const pack=packsMap.get(packName);
+      let group=pack.groups.find(g=>g.name===groupName);
+      if(!group){ group={ name: groupName, services: [] }; pack.groups.push(group); }
+
+      const serviceId=packName+"||"+groupName+"||"+serviceName;
+
+      group.services.push({ id: serviceId, title: serviceName, info, unitPrice, defaultQty });
+    }
+
+    return Array.from(packsMap.values());
+  }
+
+  function initialSelection(packs){
+    const sel=new Map();
+    for(const p of packs){
+      const services=new Map();
+      for(const g of p.groups){
+        for(const s of g.services){
+          services.set(s.id, s.defaultQty);
+        }
+      }
+      sel.set(p.name,{ active:false, services });
+    }
+    return sel;
+  }
+
+  function computePack(pack, packSel){
+    const base=Number(pack.basePrice)||0;
+    const threshold=base - DELTA_MIN;
+
+    let servicesSum=0, addedSum=0;
+
+    for(const g of pack.groups){
+      for(const s of g.services){
+        const q=clampInt(packSel.services.get(s.id),0,999);
+        servicesSum += (Number(s.unitPrice)||0) * q;
+
+        const addedQty=Math.max(0, q - clampInt(s.defaultQty,0,999));
+        addedSum += (Number(s.unitPrice)||0) * addedQty;
+      }
+    }
+
+    if(servicesSum < threshold){
+      return { ok:false, message:"Vous sortez du prix préférentiel du pack. Contactez nous pour passer aux services à la carte.", displayPrice:null, isUpsell:false };
+    }
+
+    if(servicesSum <= base){
+      return { ok:true, message:"", displayPrice:base, isUpsell:false };
+    }
+
+    const discount=addedSum * UPSELL_DISCOUNT;
+    const displayPrice=base + (addedSum - discount);
+
+    return { ok:true, message:"", displayPrice, isUpsell:true };
+  }
+
+  let PACKS=[], SELECTION=null;
+
+  function clearNode(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+
+  function render(){
+    const grid=document.getElementById("grid");
+    clearNode(grid);
+
+    let total=0, count=0, hasError=false;
+
+    for(const pack of PACKS){
+      const sel=SELECTION.get(pack.name);
+      const calc=computePack(pack, sel);
+
+      const card=document.createElement("div");
+      card.className="pack-card";
+      if(sel.active) card.classList.add("selected");
+      if(!calc.ok) card.classList.add("disabled");
+
+      card.addEventListener("click",(e)=>{
+        const tag=e.target && e.target.tagName ? e.target.tagName : "";
+        if(tag==="BUTTON"||tag==="INPUT") return;
+        if(!calc.ok) return;
+        sel.active=!sel.active;
+        render();
+      });
+
+      const meta=document.createElement("div");
+      meta.className="meta";
+      meta.textContent="Offre forfaitaire";
+      card.appendChild(meta);
+
+      const title=document.createElement("h3");
+      title.style.margin="6px 0";
+      title.textContent=pack.name;
+      card.appendChild(title);
+
+      const price=document.createElement("div");
+      price.className="price-hero";
+      price.textContent=calc.ok ? formatEUR(calc.displayPrice) : "";
+      card.appendChild(price);
+
+      if(calc.isUpsell){
+        const badge=document.createElement("div");
+        badge.className="upsell-badge";
+        badge.textContent="Bonus 2% sur les ajouts";
+        card.appendChild(badge);
+      }
+
+      const details=document.createElement("div");
+      details.className="details";
+
+      for(const group of pack.groups){
+        const gTitle=document.createElement("div");
+        gTitle.className="group-title";
+        gTitle.textContent=group.name;
+        details.appendChild(gTitle);
+
+        for(const svc of group.services){
+          const row=document.createElement("div");
+          row.className="service-row";
+
+          const info=document.createElement("span");
+          info.className="info-i";
+          info.textContent="i";
+          info.setAttribute("data-info", svc.info || "Description en attente");
+          row.appendChild(info);
+
+          const label=document.createElement("span");
+          label.style.flex="1";
+          label.textContent=svc.title;
+          row.appendChild(label);
+
+          const qtyBox=document.createElement("div");
+          qtyBox.className="qty-box";
+
+          const btnMinus=document.createElement("button");
+          btnMinus.type="button";
+          btnMinus.textContent="−";
+          btnMinus.addEventListener("click",(ev)=>{
+            ev.stopPropagation();
+            const cur=clampInt(sel.services.get(svc.id),0,999);
+            sel.services.set(svc.id, clampInt(cur-1,0,999));
+            render();
+          });
+
+          const input=document.createElement("input");
+          input.type="text";
+          input.readOnly=true;
+          input.value=String(clampInt(sel.services.get(svc.id),0,999));
+
+          const btnPlus=document.createElement("button");
+          btnPlus.type="button";
+          btnPlus.textContent="+";
+          btnPlus.addEventListener("click",(ev)=>{
+            ev.stopPropagation();
+            const cur=clampInt(sel.services.get(svc.id),0,999);
+            sel.services.set(svc.id, clampInt(cur+1,0,999));
+            render();
+          });
+
+          qtyBox.appendChild(btnMinus);
+          qtyBox.appendChild(input);
+          qtyBox.appendChild(btnPlus);
+
+          row.appendChild(qtyBox);
+          details.appendChild(row);
+        }
+      }
+
+      if(!calc.ok){
+        const warn=document.createElement("div");
+        warn.className="warn";
+        warn.textContent=calc.message;
+        details.appendChild(warn);
+      }
+
+      card.appendChild(details);
+
+      if(sel.active && calc.ok){ total += calc.displayPrice; count += 1; }
+      if(sel.active && !calc.ok) hasError=true;
+
+      grid.appendChild(card);
+    }
+
+    document.getElementById("grandTotal").textContent=formatEUR(total);
+    document.getElementById("statusText").textContent=count+" pack(s) sélectionné(s)";
+    document.getElementById("btnBooking").disabled=(count===0 || hasError);
+  }
+
+  function buildRecapText(){
+    let out=[], grandTotal=0;
+    for(const pack of PACKS){
+      const sel=SELECTION.get(pack.name);
+      if(!sel.active) continue;
+
+      const calc=computePack(pack, sel);
+      out.push(pack.name);
+
+      if(!calc.ok){
+        out.push("Hors pack préférentiel");
+        out.push(calc.message);
+        out.push("");
+        continue;
+      }
+
+      for(const group of pack.groups){
+        for(const svc of group.services){
+          const q=clampInt(sel.services.get(svc.id),0,999);
+          if(q===0) continue;
+          const linePrice=(Number(svc.unitPrice)||0)*q;
+          out.push("  "+svc.title+" x "+q+"  "+formatEUR(linePrice));
+        }
+      }
+
+      out.push("Prix pack "+formatEUR(calc.displayPrice));
+      out.push("");
+      grandTotal += calc.displayPrice;
+    }
+    out.push("Total général "+formatEUR(grandTotal));
+    return out.join("\n");
+  }
+
+  function openLeadModal(){
+    document.getElementById("fRecap").value=buildRecapText();
+    document.getElementById("leadHint").textContent="";
+    document.getElementById("leadModal").style.display="block";
+  }
+  function closeLeadModal(){ document.getElementById("leadModal").style.display="none"; }
+  function isEmailValid(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||"").trim()); }
+
+  async function sendViaWorker(payload){
+    const res=await fetch(WORKER_SEND_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok || !data.ok) throw new Error("send_failed");
+  }
+
+  function hookLeadModal(){
+    document.getElementById("btnBooking").addEventListener("click", openLeadModal);
+    document.getElementById("closeLeadModal").addEventListener("click", closeLeadModal);
+
+    document.getElementById("sendLead").addEventListener("click", async ()=>{
+      const company=document.getElementById("fCompany").value.trim();
+      const firstname=document.getElementById("fFirst").value.trim();
+      const lastname=document.getElementById("fLast").value.trim();
+      const email=document.getElementById("fEmail").value.trim();
+      const phone=document.getElementById("fPhone").value.trim();
+      const recap=document.getElementById("fRecap").value;
+
+      const hint=document.getElementById("leadHint");
+
+      if(!company || !firstname || !lastname || !email || !phone){
+        hint.textContent="Merci de remplir tous les champs.";
+        return;
+      }
+      if(!isEmailValid(email)){
+        hint.textContent="Email invalide.";
+        return;
+      }
+
+      hint.textContent="Envoi en cours.";
+
+      try{
+        await sendViaWorker({ company, firstname, lastname, email, phone, recap });
+        hint.textContent="Email envoyé. Ouverture de la réservation.";
+        window.open(BOOKING_URL, "_blank", "noopener,noreferrer");
+        closeLeadModal();
+      }catch(e){
+        hint.textContent="Erreur envoi. Vérifiez Brevo et réessayez.";
+      }
+    });
+  }
+
+  async function boot(){
+    document.getElementById("status").textContent="Chargement du catalogue";
+
+    const res=await fetch(SHEET_CSV_URL,{ cache:"no-store" });
+    if(!res.ok){ document.getElementById("status").textContent="Erreur de chargement du catalogue"; return; }
+
+    const text=await res.text();
+    const rows=parseCsv(text);
+
+    PACKS=buildCatalogFromRows(rows);
+    SELECTION=initialSelection(PACKS);
+
+    document.getElementById("status").textContent="";
+    hookLeadModal();
+    render();
+  }
+
+  boot();
+</script>
+</body>
+</html>

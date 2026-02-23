@@ -34,59 +34,54 @@
     .btn{background:var(--accent);color:#fff;border:none;padding:14px 22px;border-radius:10px;font-weight:800;cursor:pointer}
     .btn:disabled{background:var(--grey);cursor:not-allowed;opacity:.6}
     .small{opacity:.75;font-size:.9rem}
-    @media (max-width:900px){.packs-grid{grid-template-columns:1fr}}
-    #leadModal { padding: 18px; }
+<div id="leadModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2>Vos coordonnées</h2>
+        <p class="muted">Recevez votre récapitulatif par email. L’équipe Bridging est aussi notifiée.</p>
+      </div>
+      <button id="closeLeadModal" type="button" class="btn-ghost">Fermer</button>
+    </div>
 
-.lead-card{
-  max-width: 720px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 18px 50px rgba(0,0,0,.18);
-}
+    <div class="lead-grid">
+      <div class="field full">
+        <label>Entreprise</label>
+        <input id="fCompany" type="text" placeholder="Nom de l’entreprise">
+      </div>
 
-.lead-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 14px;
-}
+      <div class="field">
+        <label>Prénom</label>
+        <input id="fFirst" type="text" placeholder="Prénom">
+      </div>
 
-.field{ display: flex; flex-direction: column; gap: 6px; }
-.field.full{ grid-column: 1 / -1; }
+      <div class="field">
+        <label>Nom</label>
+        <input id="fLast" type="text" placeholder="Nom">
+      </div>
 
-.field label{
-  display:block;
-  font-size: .9rem;
-  font-weight: 700;
-  color: var(--p-dark);
-}
+      <div class="field">
+        <label>Email</label>
+        <input id="fEmail" type="email" placeholder="email@exemple.com">
+      </div>
 
-.field input{
-  width: 100%;
-  padding: 11px 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  outline: none;
-}
+      <div class="field">
+        <label>Téléphone</label>
+        <input id="fPhone" type="tel" placeholder="+33 …">
+      </div>
+    </div>
 
-.field input:focus{
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(173,108,147,.18);
-}
+    <div class="recap-wrap">
+      <div class="recap-title">Récapitulatif</div>
+      <textarea id="fRecap" rows="10" readonly></textarea>
+      <div id="leadHint" class="hint"></div>
+    </div>
 
-#fRecap{
-  width: 100%;
-  padding: 11px 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  resize: vertical;
-}
-
-@media (max-width: 720px){
-  .lead-grid{ grid-template-columns: 1fr; }
-}
+    <div class="modal-actions">
+      <button id="sendLead" type="button" class="btn-primary">Envoyer et réserver</button>
+    </div>
+  </div>
+</div>
   </style>
 </head>
 <body>
@@ -116,58 +111,54 @@
   </div>
 
   <!-- Modal contact -->
-  <div id="leadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; padding:18px;">
-    <div class="lead-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-        <h2 style="margin:0;">Vos informations</h2>
-        <button id="closeLeadModal" type="button" style="border:none; background:#eee; border-radius:10px; padding:8px 12px; cursor:pointer;">Fermer</button>
+  <div id="leadModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2>Vos coordonnées</h2>
+        <p class="muted">Recevez votre récapitulatif par email. L’équipe Bridging est aussi notifiée.</p>
+      </div>
+      <button id="closeLeadModal" type="button" class="btn-ghost">Fermer</button>
+    </div>
+
+    <div class="lead-grid">
+      <div class="field full">
+        <label>Entreprise</label>
+        <input id="fCompany" type="text" placeholder="Nom de l’entreprise">
       </div>
 
-      <p style="opacity:0.75; margin-top:8px;">
-        Un email récapitulatif sera envoyé à votre adresse e-mail et à l'équipe Bridging.
-      </p>
+      <div class="field">
+        <label>Prénom</label>
+        <input id="fFirst" type="text" placeholder="Prénom">
+      </div>
 
-      <div class="lead-grid">
-  <div class="field full">
-    <label>Entreprise</label>
-    <input id="fCompany" type="text" placeholder="Nom de l'entreprise">
-  </div>
+      <div class="field">
+        <label>Nom</label>
+        <input id="fLast" type="text" placeholder="Nom">
+      </div>
 
-  <div class="field">
-    <label>Prénom</label>
-    <input id="fFirst" type="text" placeholder="Prénom">
-  </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="fEmail" type="email" placeholder="email@exemple.com">
+      </div>
 
-  <div class="field">
-    <label>Nom</label>
-    <input id="fLast" type="text" placeholder="Nom">
-  </div>
-
-  <div class="field">
-    <label>Email</label>
-    <input id="fEmail" type="email" placeholder="email@exemple.com">
-  </div>
-
-  <div class="field">
-    <label>Téléphone</label>
-    <input id="fPhone" type="tel" placeholder="+33 ...">
-  </div>
-</div>
-
-      <div style="margin-top:14px;">
-        <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Récapitulatif</label>
-        <textarea id="fRecap" rows="10" readonly style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;"></textarea>
-
-        <div style="display:flex; gap:10px; margin-top:10px; justify-content:flex-end;">
-          <button id="sendLead" type="button" style="border:none; background:#ad6c93; color:white; border-radius:10px; padding:10px 14px; font-weight:800; cursor:pointer;">
-            Envoyer et réserver
-          </button>
-        </div>
-
-        <div id="leadHint" style="margin-top:10px; font-size:0.9rem; opacity:0.75;"></div>
+      <div class="field">
+        <label>Téléphone</label>
+        <input id="fPhone" type="tel" placeholder="+33 …">
       </div>
     </div>
+
+    <div class="recap-wrap">
+      <div class="recap-title">Récapitulatif</div>
+      <textarea id="fRecap" rows="10" readonly></textarea>
+      <div id="leadHint" class="hint"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="sendLead" type="button" class="btn-primary">Envoyer et réserver</button>
+    </div>
   </div>
+</div>
 
 <script>
   const SHEET_CSV_URL = "https://bridgingsolutions.cellie-piraud.workers.dev/catalog";

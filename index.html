@@ -40,7 +40,7 @@
 <body>
   <header>
     <h1>Votre pack startup</h1>
-    <div class="small">Sélectionnez un ou plusieurs packs puis ajustez les services et quantités.</div>
+    <div class="small">Sélectionnez un ou plusieurs packs.</div>
     <div id="status" class="small" style="margin-top:6px;"></div>
   </header>
 
@@ -114,15 +114,28 @@
   const BOOKING_URL = "https://outlook.office.com/book/RunionAccompagnementPackStratup@bridgingsolutions.fr/?ismsaljsauthenabled";
   const WORKER_SEND_URL = "https://bridgingsolutions.cellie-piraud.workers.dev/send";
 
-  const DELTA_MIN = 1200;
+function getDelta(name){
+  const n = name.trim().toLowerCase();
+
+  if(n.includes("idéation")) return 700;
+  if(n.includes("prototype")) return 1200;
+  if(n.includes("homologation")) return 1500;
+  if(n.includes("industrialisation")) return 1200;
+
+  return 1200;
+}
   const UPSELL_DISCOUNT = 0.02;
 
-  const BASE_PRICE = {
-    "Pack Idéation": 5000,
-    "Pack Prototype": 7000,
-    "Pack Homologation": 19000,
-    "Pack Industrialisation": 12000
-  };
+function getBasePrice(name){
+  const n = name.trim().toLowerCase();
+
+  if(n.includes("idéation")) return 5000;
+  if(n.includes("prototype")) return 7000;
+  if(n.includes("homologation")) return 12000;
+  if(n.includes("industrialisation")) return 12000;
+
+  return 0;
+}
 
   function formatEUR(n){return Math.round(Number(n||0)).toLocaleString("fr-FR")+" €";}
   function clampInt(v,min,max){const n=Math.floor(Number(v));if(!Number.isFinite(n))return min;return Math.max(min,Math.min(max,n));}
@@ -175,7 +188,7 @@
       const defaultQty=clampInt(line[iDef],0,999);
 
       if(!packsMap.has(packName)){
-        packsMap.set(packName,{ name: packName, basePrice: BASE_PRICE[packName] ?? 0, groups: [] });
+        packsMap.set(packName,{ name: packName, basePrice: getBasePrice(packName), groups: [] });
       }
 
       const pack=packsMap.get(packName);
@@ -206,7 +219,7 @@
 
   function computePack(pack, packSel){
     const base=Number(pack.basePrice)||0;
-    const threshold=base - DELTA_MIN;
+    const threshold = base - getDelta(pack.name);
 
     let servicesSum=0, addedSum=0;
 
@@ -385,7 +398,7 @@
           const q=clampInt(sel.services.get(svc.id),0,999);
           if(q===0) continue;
           const linePrice=(Number(svc.unitPrice)||0)*q;
-          out.push("  "+svc.title+" x "+q+"  "+formatEUR(linePrice));
+          out.push("  "+svc.title+" x "+q);
         }
       }
 

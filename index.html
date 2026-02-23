@@ -75,31 +75,32 @@
         Un email récapitulatif sera envoyé à votre adresse e-mail et à l'équipe Bridging.
       </p>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
-        <div>
-          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Entreprise</label>
-          <input id="fCompany" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
-        </div>
-        <div></div>
+      <div class="lead-grid">
+  <div class="field full">
+    <label>Entreprise</label>
+    <input id="fCompany" type="text" placeholder="Nom de l'entreprise">
+  </div>
 
-        <div>
-          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Prénom</label>
-          <input id="fFirst" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
-        </div>
-        <div>
-          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Nom</label>
-          <input id="fLast" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
-        </div>
+  <div class="field">
+    <label>Prénom</label>
+    <input id="fFirst" type="text" placeholder="Prénom">
+  </div>
 
-        <div>
-          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Email</label>
-          <input id="fEmail" type="email" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
-        </div>
-        <div>
-          <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Téléphone</label>
-          <input id="fPhone" type="tel" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:10px;">
-        </div>
-      </div>
+  <div class="field">
+    <label>Nom</label>
+    <input id="fLast" type="text" placeholder="Nom">
+  </div>
+
+  <div class="field">
+    <label>Email</label>
+    <input id="fEmail" type="email" placeholder="email@exemple.com">
+  </div>
+
+  <div class="field">
+    <label>Téléphone</label>
+    <input id="fPhone" type="tel" placeholder="+33 ...">
+  </div>
+</div>
 
       <div style="margin-top:14px;">
         <label style="display:block; font-size:0.9rem; margin-bottom:6px;">Récapitulatif</label>

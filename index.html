@@ -200,7 +200,7 @@
       <div class="modal-head">
         <div>
           <h2>Vos coordonnées</h2>
-          <p class="muted">Recevez votre récapitulatif par email. L’équipe Bridging est aussi notifiée.</p>
+          <p class="muted">Vous allez recevoir votre récapitulatif par email.</p>
         </div>
         <button id="closeLeadModal" type="button" class="btn-ghost">Fermer</button>
       </div>
@@ -369,7 +369,8 @@
     }
 
     if(servicesSum < threshold){
-      return { ok:false, message:"Vous sortez du prix préférentiel du pack. Contactez nous pour passer aux services à la carte.", displayPrice:null, isUpsell:false };
+      return { ok:false, message:"Vous sortez du prix préférentiel du pack. Contactez nous pour passer aux services à la carte : +33 (0)9 50 09 66 36 /
+contact@bridgingsolutions.fr.", displayPrice:null, isUpsell:false };
     }
 
     if(servicesSum <= base){
@@ -428,7 +429,7 @@
       if(calc.isUpsell){
         const badge=document.createElement("div");
         badge.className="upsell-badge";
-        badge.textContent="-2% appliqués sur les services ajoutés";
+        badge.textContent="-2% appliqués par service additionel";
         card.appendChild(badge);
       }
 

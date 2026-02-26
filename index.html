@@ -314,7 +314,7 @@
         addedSum += (Number(s.unitPrice)||0) * addedQty;
       }
     }
-    if(servicesSum < threshold) return { ok:false, message:"Vous sortez du prix préférentiel du pack...", displayPrice:null, isUpsell:false };
+    if(servicesSum < threshold) return { ok:false, message:"Vous sortez du prix préférentiel du pack. Contactez-nous pour passer aux services à la carte : contact@brdigingsolutions.fr ou +33 (0)9 50 09 66 36", displayPrice:null, isUpsell:false };
     if(servicesSum <= base) return { ok:true, message:"", displayPrice: base, isUpsell:false };
     const discount = addedSum * UPSELL_DISCOUNT;
     const displayPrice = base + (addedSum - discount);

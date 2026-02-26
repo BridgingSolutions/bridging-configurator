@@ -88,6 +88,37 @@
     .brand{position:absolute;left:18px;top:20px;display:inline-flex;align-items:center}
     .brand img{height:50px;display:block}
 
+    /* Switch langue propre */
+    .lang-switch{
+      position:absolute;
+      top:18px;
+      right:18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      font-size:.95rem;
+      user-select:none;
+    }
+    .lang-switch a{
+      text-decoration:none;
+      color:var(--p-dark);
+      opacity:.55;
+      padding:6px 8px;
+      border-radius:10px;
+      transition:opacity .15s ease, background .15s ease;
+    }
+    .lang-switch a:hover{
+      opacity:.9;
+      background:rgba(0,0,0,.05);
+    }
+    .lang-switch a.active{
+      opacity:1;
+      background:rgba(0,0,0,.06);
+    }
+    .lang-switch .sep{opacity:.35}
+    .lang-switch a#langEN{ color:var(--accent); }
+
     /* Correction mobile modale */
     .modal{
       display:none;
@@ -157,6 +188,11 @@
       }
       .brand{position:static;justify-content:center;margin-bottom:10px}
       header{text-align:center}
+      .lang-switch{
+        position:static;
+        justify-content:center;
+        margin-top:10px;
+      }
     }
   </style>
 </head>
@@ -166,8 +202,15 @@
     <a class="brand" href="https://bridgingsolutions.fr/" target="_blank" rel="noopener noreferrer">
       <img src="https://bridgingsolutions.fr/wp-content/uploads/2025/04/cropped-logo_BRIDGING-1536x474-1-300x93-1.png" alt="Bridging">
     </a>
-    <h1>Votre pack startup</h1>
-    <div class="small">Sélectionnez un ou plusieurs packs.</div>
+
+    <div class="lang-switch" aria-label="Language switch">
+      <a id="langFR" href="?lang=fr">FR</a>
+      <span class="sep">|</span>
+      <a id="langEN" href="?lang=en">EN</a>
+    </div>
+
+    <h1 id="pageTitle">Votre pack startup</h1>
+    <div id="pageSubtitle" class="small">Sélectionnez un ou plusieurs packs.</div>
     <div id="status" class="small" style="margin-top:6px;"></div>
   </header>
 
@@ -187,23 +230,26 @@
     <div class="modal-card">
       <div class="modal-head">
         <div>
-          <h2>Vos coordonnées</h2>
-          <p class="muted">Vous allez recevoir votre récapitulatif par email.</p>
+          <h2 id="leadTitle">Vos coordonnées</h2>
+          <p id="leadSubtitle" class="muted">Vous allez recevoir votre récapitulatif par email.</p>
         </div>
         <button id="closeLeadModal" type="button" class="btn-ghost">Fermer</button>
       </div>
+
       <div class="lead-grid">
-        <div class="field full"><label>Entreprise</label><input id="fCompany" type="text" placeholder="Nom de l’entreprise"></div>
-        <div class="field"><label>Prénom</label><input id="fFirst" type="text" placeholder="Prénom"></div>
-        <div class="field"><label>Nom</label><input id="fLast" type="text" placeholder="Nom"></div>
-        <div class="field"><label>Email</label><input id="fEmail" type="email" placeholder="email@exemple.com"></div>
-        <div class="field"><label>Téléphone</label><input id="fPhone" type="tel" placeholder="+33 …"></div>
+        <div class="field full"><label id="lCompany">Entreprise</label><input id="fCompany" type="text" placeholder="Nom de l’entreprise"></div>
+        <div class="field"><label id="lFirst">Prénom</label><input id="fFirst" type="text" placeholder="Prénom"></div>
+        <div class="field"><label id="lLast">Nom</label><input id="fLast" type="text" placeholder="Nom"></div>
+        <div class="field"><label id="lEmail">Email</label><input id="fEmail" type="email" placeholder="email@exemple.com"></div>
+        <div class="field"><label id="lPhone">Téléphone</label><input id="fPhone" type="tel" placeholder="+33 …"></div>
       </div>
+
       <div class="recap-wrap">
-        <div class="recap-title">Récapitulatif</div>
+        <div id="recapTitle" class="recap-title">Récapitulatif</div>
         <div id="fRecap" class="recap-box"></div>
         <div id="leadHint" class="hint"></div>
       </div>
+
       <div class="modal-actions">
         <button id="sendLead" type="button" class="btn-primary">Envoyer et réserver</button>
       </div>
@@ -212,8 +258,154 @@
 
 <script>
   const SHEET_CSV_URL = "https://bridgingsolutions.cellie-piraud.workers.dev/catalog";
-  const BOOKING_URL = "https://outlook.office.com/book/RunionAccompagnementPackStratup@bridgingsolutions.fr/?ismsaljsauthenabled";
   const WORKER_SEND_URL = "https://bridgingsolutions.cellie-piraud.workers.dev/send";
+
+  const BOOKING_URL_FR = "https://outlook.office.com/book/RunionAccompagnementPackStratup@bridgingsolutions.fr/?ismsaljsauthenabled";
+  const BOOKING_URL_EN = "REPLACE_WITH_YOUR_EN_BOOKING_URL";
+
+  const LANG = (new URLSearchParams(location.search).get("lang") || "fr").toLowerCase();
+  const IS_EN = LANG.startsWith("en");
+
+  const UI = {
+    fr: {
+      pageTitle: "Votre pack startup",
+      pageSubtitle: "Sélectionnez un ou plusieurs packs.",
+      statusText: "Sélectionnez vos packs",
+      btnBooking: "Réserver cet accompagnement",
+      leadTitle: "Vos coordonnées",
+      leadSubtitle: "Vous allez recevoir votre récapitulatif par email.",
+      close: "Fermer",
+      lCompany: "Entreprise",
+      lFirst: "Prénom",
+      lLast: "Nom",
+      lEmail: "Email",
+      lPhone: "Téléphone",
+      recapTitle: "Récapitulatif",
+      send: "Envoyer et réserver",
+      pending: "Description en attente",
+      outOfPack: "Vous sortez du prix préférentiel du pack. Contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
+      upsellBadge: "-2% appliqués par service additionel",
+      outOfPackLabel: "Hors pack",
+      packPriceLabel: "Prix pack",
+      grandTotalLabel: "Total général",
+      packsSelected: (n)=> n + " pack(s) sélectionné(s)"
+    },
+    en: {
+      pageTitle: "Your startup pack",
+      pageSubtitle: "Select one or more packs.",
+      statusText: "Select your packs",
+      btnBooking: "Book this program",
+      leadTitle: "Your details",
+      leadSubtitle: "You will receive your summary by email.",
+      close: "Close",
+      lCompany: "Company",
+      lFirst: "First name",
+      lLast: "Last name",
+      lEmail: "Email",
+      lPhone: "Phone",
+      recapTitle: "Summary",
+      send: "Send and book",
+      pending: "Description pending",
+      outOfPack: "You are outside the pack preferential price. Contact us to switch to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
+      upsellBadge: "-2% applied on additional services",
+      outOfPackLabel: "Outside pack",
+      packPriceLabel: "Pack price",
+      grandTotalLabel: "Grand total",
+      packsSelected: (n)=> n + " pack(s) selected"
+    }
+  };
+
+  const T = IS_EN ? UI.en : UI.fr;
+
+  function setLangLinks(){
+    const fr = document.getElementById("langFR");
+    const en = document.getElementById("langEN");
+    if(!fr || !en) return;
+
+    const url = new URL(window.location.href);
+
+    const frUrl = new URL(url);
+    frUrl.searchParams.set("lang","fr");
+    fr.href = frUrl.pathname + frUrl.search;
+
+    const enUrl = new URL(url);
+    enUrl.searchParams.set("lang","en");
+    en.href = enUrl.pathname + enUrl.search;
+
+    fr.classList.toggle("active", !IS_EN);
+    en.classList.toggle("active", IS_EN);
+  }
+
+  const TR = {
+    packs: {
+      "Pack Idéation": "Ideation pack",
+      "Pack Prototype": "Prototype pack",
+      "Pack Homologation": "Certification pack",
+      "Pack Industrialisation": "Industrialization pack"
+    },
+    groups: {
+      "Sourcing": "Sourcing",
+      "Ingénierie": "Engineering",
+      "Qualité/Délai": "Quality and Delivery"
+    },
+    services: {
+      "Sourcing sur étagère": "Off the shelf sourcing",
+      "Sourcing sur plan": "Sourcing from drawings",
+      "Sourcing sur plan innovation ou fonction complète": "Innovation sourcing from drawings or full function",
+      "Sketching/modeling 3D - 3 jours": "3D sketching and modeling 3 days",
+      "Design 2D/3D": "2D and 3D design",
+      "Intégration 1 composant": "Integration of 1 component",
+      "Contrôle avant expédition [OQC] - 7h de contrôle - Asie": "Pre shipment inspection OQC 7 hours Asia",
+      "Livraison à temps - Un suivi par commande - Asie": "On time delivery one follow up per order Asia",
+      "Evaluation fournisseur": "Supplier assessment",
+      "Audit RSE": "ESG audit",
+      "Audit conformité produit": "Product compliance audit",
+      "Audit process avant série - France (Europe + frais réels facturés en sus)": "Pre series process audit France Europe plus travel costs",
+      "Audit process avant série Asie": "Pre series process audit Asia",
+      "Simulation & Analyse 1 élément": "Simulation and analysis 1 element",
+      "Simulation & Analyse - Complexe 3 éléments": "Simulation and analysis complex 3 elements",
+      "Analyse de sécurité fonctionnelle": "Functional safety analysis"
+    },
+    infos: {
+      "Produit standardisé fabriqué en série et disponible à l'achat direct, sans développement sur mesure":
+        "Standardized mass produced product available for direct purchase, no custom development",
+      "Le sourcing sur plan désigne la recherche et la sélection de fournisseurs pour fabriquer des composants ou pièces selon un plan technique fourni":
+        "Sourcing from drawings means finding and selecting suppliers to manufacture components or parts based on a provided technical drawing",
+      "Modélisation 3D initiale (CAD) à partir d'idées ou scans pour visualiser le concept":
+        "Initial 3D modeling (CAD) from ideas or scans to visualize the concept",
+      "Le sourcing innovation désigne la recherche de solutions sur cahier des charges fonctionnel":
+        "Innovation sourcing means searching for solutions based on a functional specification",
+      "Le contrôle avant expédition ou Outgoing Quality Control, est un contrôle qualité réalisé sur les produits finis avant leur expédition, pour vérifier leur conformité aux spécifications":
+        "Pre shipment inspection, also called Outgoing Quality Control, is a quality check performed on finished goods before shipment to verify conformity with specifications",
+      "Supervise la ponctualité des fournisseurs et des livraisons":
+        "Monitors supplier punctuality and deliveries",
+      "Audit qui évalue la gouvernance, les processus et pratiques d'un fournisseur":
+        "Audit that evaluates a supplier governance, processes, and practices",
+      "Evaluation des performances ESG":
+        "Assessment of ESG performance",
+      "Modélisation 3D initiale (CAD) à partir d'idées ou scans pour visualiser le concept":
+        "Initial 3D modeling (CAD) from ideas or scans to visualize the concept",
+      "Conception élément de structure":
+        "Structural element design",
+      "Intégration composant sur structure sur base d'un plan":
+        "Component integration on a structure based on a drawing",
+      "Evalua la conformité et la qualification d'un produit aux exigences clients":
+        "Assesses product conformity and qualification against customer requirements",
+      "Evalua la conformité d'un process avant démarrage série d'un produit":
+        "Assesses process conformity before series production start",
+      "Evalua les performances ESG":
+        "Assesses ESG performance",
+      "Simulation multiphysiques (mécanique, fluides, électromagnétique) pour homologation performance/sécurité sur plan fourni":
+        "Multiphysics simulation (mechanical, fluids, electromagnetic) for certification performance and safety based on the provided drawings",
+      "Utilisation d'outils pour s'assurer que le produit répond aux normes de sécurité sur plan fourni":
+        "Use of tools to ensure the product meets safety standards based on the provided drawings"
+    }
+  };
+
+  function trPack(name){ return IS_EN ? (TR.packs[name] || name) : name; }
+  function trGroup(name){ return IS_EN ? (TR.groups[name] || name) : name; }
+  function trService(name){ return IS_EN ? (TR.services[name] || name) : name; }
+  function trInfo(info){ return IS_EN ? (TR.infos[info] || info) : info; }
 
   function getDelta(name){
     const n = name.trim().toLowerCase();
@@ -235,12 +427,22 @@
     return 0;
   }
 
-  function formatEUR(n){ return Math.round(Number(n||0)).toLocaleString("fr-FR")+" €"; }
-  function clampInt(v,min,max){ const n=Math.floor(Number(v)); if(!Number.isFinite(n))return min; return Math.max(min,Math.min(max,n)); }
+  function formatEUR(n){
+    const num = Math.round(Number(n||0));
+    return num.toLocaleString(IS_EN ? "en-GB" : "fr-FR") + " €";
+  }
+
+  function clampInt(v,min,max){
+    const n=Math.floor(Number(v));
+    if(!Number.isFinite(n))return min;
+    return Math.max(min,Math.min(max,n));
+  }
+
   function parseNumber(v){
     if(v===null||v===undefined) return 0;
     const s=String(v).replace(/\u202f/g,"").replace(/\u00a0/g,"").replace(/€/g,"").replace(/\s/g,"").replace(",",".");
-    const n=Number(s); return Number.isFinite(n)?n:0;
+    const n=Number(s);
+    return Number.isFinite(n)?n:0;
   }
 
   function parseCsv(text){
@@ -272,6 +474,7 @@
     const iPack=idx("PackName"), iGroup=idx("GroupName"), iService=idx("ServiceName"),
           iInfo=idx("Info"), iUnit=idx("UnitPrice"), iDef=idx("DefaultQty");
     if([iPack,iGroup,iService,iInfo,iUnit,iDef].some(x=>x<0)) throw new Error("Colonnes manquantes dans le CSV");
+
     const packsMap=new Map();
     for(let r=1;r<rows.length;r++){
       const line=rows[r];
@@ -279,13 +482,17 @@
       const groupName=String(line[iGroup]||"").trim();
       const serviceName=String(line[iService]||"").trim();
       if(!packName||!groupName||!serviceName) continue;
+
       const info=String(line[iInfo]||"").trim();
       const unitPrice=parseNumber(line[iUnit]);
       const defaultQty=clampInt(line[iDef],0,999);
+
       if(!packsMap.has(packName)) packsMap.set(packName,{ name: packName, basePrice: getBasePrice(packName), groups: [] });
       const pack=packsMap.get(packName);
+
       let group=pack.groups.find(g=>g.name===groupName);
       if(!group){ group={ name: groupName, services: [] }; pack.groups.push(group); }
+
       const serviceId=packName+"||"+groupName+"||"+serviceName;
       group.services.push({ id: serviceId, title: serviceName, info, unitPrice, defaultQty });
     }
@@ -306,6 +513,7 @@
     const base=Number(pack.basePrice)||0;
     const threshold = base - getDelta(pack.name);
     let servicesSum=0, addedSum=0;
+
     for(const g of pack.groups){
       for(const s of g.services){
         const q=clampInt(packSel.services.get(s.id),0,999);
@@ -314,8 +522,10 @@
         addedSum += (Number(s.unitPrice)||0) * addedQty;
       }
     }
-    if(servicesSum < threshold) return { ok:false, message:"Vous sortez du prix préférentiel du pack. Contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36", displayPrice:null, isUpsell:false };
+
+    if(servicesSum < threshold) return { ok:false, message: T.outOfPack, displayPrice:null, isUpsell:false };
     if(servicesSum <= base) return { ok:true, message:"", displayPrice: base, isUpsell:false };
+
     const discount = addedSum * UPSELL_DISCOUNT;
     const displayPrice = base + (addedSum - discount);
     return { ok:true, message:"", displayPrice, isUpsell: displayPrice > base };
@@ -328,11 +538,13 @@
   function render(){
     const grid=document.getElementById("grid");
     clearNode(grid);
+
     let total=0, count=0, hasError=false;
 
     for(const pack of PACKS){
       const sel=SELECTION.get(pack.name);
       const calc=computePack(pack, sel);
+
       const card=document.createElement("div");
       card.className="pack-card";
       if(sel.active) card.classList.add("selected");
@@ -346,29 +558,47 @@
       });
 
       const meta=document.createElement("div"); meta.className="meta"; card.appendChild(meta);
-      const title=document.createElement("h3"); title.style.margin="6px 0"; title.textContent=pack.name; card.appendChild(title);
-      const price=document.createElement("div"); price.className="price-hero"; price.textContent=calc.ok ? formatEUR(calc.displayPrice) : ""; card.appendChild(price);
+
+      const title=document.createElement("h3");
+      title.style.margin="6px 0";
+      title.textContent=trPack(pack.name);
+      card.appendChild(title);
+
+      const price=document.createElement("div");
+      price.className="price-hero";
+      price.textContent=calc.ok ? formatEUR(calc.displayPrice) : "";
+      card.appendChild(price);
 
       if(calc.isUpsell){
-        const badge=document.createElement("div"); badge.className="upsell-badge"; badge.textContent="-2% appliqués par service additionel"; card.appendChild(badge);
+        const badge=document.createElement("div");
+        badge.className="upsell-badge";
+        badge.textContent=T.upsellBadge;
+        card.appendChild(badge);
       }
 
       const details=document.createElement("div"); details.className="details";
+
       for(const group of pack.groups){
-        const gTitle=document.createElement("div"); gTitle.className="group-title"; gTitle.textContent=group.name; details.appendChild(gTitle);
+        const gTitle=document.createElement("div");
+        gTitle.className="group-title";
+        gTitle.textContent=trGroup(group.name);
+        details.appendChild(gTitle);
+
         for(const svc of group.services){
           const row=document.createElement("div"); row.className="service-row";
 
           const info=document.createElement("span"); info.className="info-i"; info.textContent="i";
-          info.setAttribute("data-info", svc.info || "Description en attente");
+          const tipFR = svc.info || T.pending;
+          info.setAttribute("data-info", trInfo(tipFR) || T.pending);
           row.appendChild(info);
 
           const label=document.createElement("span");
           label.className="service-label";
-          label.textContent=svc.title;
+          label.textContent=trService(svc.title);
           row.appendChild(label);
 
           const qtyBox=document.createElement("div"); qtyBox.className="qty-box";
+
           const btnMinus=document.createElement("button"); btnMinus.textContent="−";
           btnMinus.addEventListener("click",(ev)=>{
             ev.stopPropagation();
@@ -390,41 +620,70 @@
 
           qtyBox.appendChild(btnMinus); qtyBox.appendChild(input); qtyBox.appendChild(btnPlus);
           row.appendChild(qtyBox);
+
           details.appendChild(row);
         }
       }
 
       if(!calc.ok){
-        const warn=document.createElement("div"); warn.className="warn"; warn.textContent=calc.message; details.appendChild(warn);
+        const warn=document.createElement("div");
+        warn.className="warn";
+        warn.textContent=calc.message;
+        details.appendChild(warn);
       }
+
       card.appendChild(details);
+
       if(sel.active && calc.ok){ total += calc.displayPrice; count += 1; }
       if(sel.active && !calc.ok) hasError=true;
+
       grid.appendChild(card);
     }
+
     document.getElementById("grandTotal").textContent=formatEUR(total);
-    document.getElementById("statusText").textContent=count+" pack(s) sélectionné(s)";
+    document.getElementById("statusText").textContent=T.packsSelected(count);
     document.getElementById("btnBooking").disabled=(count===0 || hasError);
   }
 
-  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
 
   function buildRecapHTML(){
     let html = "", grandTotal = 0;
+
     for(const pack of PACKS){
       const sel = SELECTION.get(pack.name);
       if(!sel.active) continue;
+
       const calc = computePack(pack, sel);
-      html += `<div class="recap-pack"><div class="recap-pack-title">${escapeHtml(pack.name)}</div>`;
-      if(!calc.ok){ html += `<div class="recap-line" style="color:#ad6c93;font-weight:900;">Hors pack</div></div>`; continue; }
-      for(const group of pack.groups) for(const svc of group.services){
-        const q = clampInt(sel.services.get(svc.id),0,999);
-        if(q > 0) html += `<div class="recap-line"><div>${escapeHtml(svc.title)} x ${q}</div></div>`;
+
+      html += `<div class="recap-pack"><div class="recap-pack-title">${escapeHtml(trPack(pack.name))}</div>`;
+
+      if(!calc.ok){
+        html += `<div class="recap-line" style="color:#ad6c93;font-weight:900;">${escapeHtml(T.outOfPackLabel)}</div></div>`;
+        continue;
       }
-      html += `<div class="recap-total"><div>Prix pack</div><div>${formatEUR(calc.displayPrice)}</div></div></div>`;
+
+      for(const group of pack.groups){
+        for(const svc of group.services){
+          const q = clampInt(sel.services.get(svc.id),0,999);
+          if(q > 0){
+            html += `<div class="recap-line"><div>${escapeHtml(trService(svc.title))} x ${q}</div></div>`;
+          }
+        }
+      }
+
+      html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div></div>`;
       grandTotal += calc.displayPrice;
     }
-    html += `<div class="recap-grand"><div>Total général</div><div>${formatEUR(grandTotal)}</div></div>`;
+
+    html += `<div class="recap-grand"><div>${escapeHtml(T.grandTotalLabel)}</div><div>${formatEUR(grandTotal)}</div></div>`;
     return html;
   }
 
@@ -432,36 +691,76 @@
     document.getElementById("fRecap").innerHTML = buildRecapHTML();
     document.getElementById("leadModal").style.display="block";
   }
-  function closeLeadModal(){ document.getElementById("leadModal").style.display="none"; }
+
+  function closeLeadModal(){
+    document.getElementById("leadModal").style.display="none";
+  }
 
   async function boot(){
+    setLangLinks();
+
+    document.getElementById("pageTitle").textContent = T.pageTitle;
+    document.getElementById("pageSubtitle").textContent = T.pageSubtitle;
+    document.getElementById("statusText").textContent = T.statusText;
+    document.getElementById("btnBooking").textContent = T.btnBooking;
+
+    document.getElementById("leadTitle").textContent = T.leadTitle;
+    document.getElementById("leadSubtitle").textContent = T.leadSubtitle;
+    document.getElementById("closeLeadModal").textContent = T.close;
+
+    document.getElementById("lCompany").textContent = T.lCompany;
+    document.getElementById("lFirst").textContent = T.lFirst;
+    document.getElementById("lLast").textContent = T.lLast;
+    document.getElementById("lEmail").textContent = T.lEmail;
+    document.getElementById("lPhone").textContent = T.lPhone;
+
+    document.getElementById("recapTitle").textContent = T.recapTitle;
+    document.getElementById("sendLead").textContent = T.send;
+
     const res=await fetch(SHEET_CSV_URL,{ cache:"no-store" });
     if(!res.ok) return;
+
     const text=await res.text();
     PACKS=buildCatalogFromRows(parseCsv(text));
     SELECTION=initialSelection(PACKS);
+
     document.getElementById("status").textContent="";
+
     document.getElementById("btnBooking").addEventListener("click", openLeadModal);
     document.getElementById("closeLeadModal").addEventListener("click", closeLeadModal);
 
     document.getElementById("sendLead").addEventListener("click", async ()=>{
+      const bookingUrl = IS_EN ? BOOKING_URL_EN : BOOKING_URL_FR;
+
       const payload = {
+        lang: IS_EN ? "en" : "fr",
+        bookingUrl,
         company: document.getElementById("fCompany").value.trim(),
         firstname: document.getElementById("fFirst").value.trim(),
         lastname: document.getElementById("fLast").value.trim(),
         email: document.getElementById("fEmail").value.trim(),
         phone: document.getElementById("fPhone").value.trim(),
-        recap: document.getElementById("fRecap").innerText
+        recap: document.getElementById("fRecap").innerText,
+        hasUpsell: document.querySelectorAll(".upsell-badge").length > 0
       };
-      if(!payload.company || !payload.email) return;
+
+      if(!payload.company || !payload.firstname || !payload.lastname || !payload.email || !payload.phone) return;
+
       try {
-        await fetch(WORKER_SEND_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
-        window.open(BOOKING_URL, "_blank");
+        await fetch(WORKER_SEND_URL, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(payload)
+        });
+
+        window.open(bookingUrl, "_blank");
         closeLeadModal();
       } catch(e) {}
     });
+
     render();
   }
+
   boot();
 </script>
 </body>

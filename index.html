@@ -14,9 +14,11 @@
       --white:#ffffff;
       --gold:#d4af37;
       --soft-warning:#f6eef3;
+      --line:#ececf0;
+      --ok:#4d7c57;
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing:border-box; }
 
     body{
       margin:0;
@@ -49,11 +51,10 @@
       padding:26px;
       border:3px solid transparent;
       transition:.2s ease;
-      cursor:default;
     }
 
-    .pack-card.clickable{
-      cursor:pointer;
+    .pack-card.open{
+      border-color:#ddd;
     }
 
     .pack-card.selected{
@@ -61,9 +62,17 @@
       background:var(--pink-soft);
     }
 
-    .pack-card.locked{
-      border-color:#d9d9df;
-      background:#fbfbfc;
+    .pack-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      cursor:pointer;
+    }
+
+    .pack-top-left{
+      min-width:0;
+      flex:1;
     }
 
     .meta{
@@ -74,11 +83,46 @@
       min-height:1em;
     }
 
+    .pack-title{
+      margin:6px 0;
+      font-size:1.35rem;
+      line-height:1.2;
+    }
+
     .price-hero{
       font-size:2.2rem;
       font-weight:800;
       color:var(--accent);
-      margin:8px 0;
+      margin:8px 0 0;
+    }
+
+    .pack-top-right{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .toggle-btn{
+      border:1px solid #ddd;
+      background:#fafafa;
+      color:var(--p-dark);
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:900;
+      cursor:pointer;
+      font:inherit;
+      white-space:nowrap;
+    }
+
+    .selected-badge{
+      background:var(--p-dark);
+      color:#fff;
+      font-size:.75rem;
+      font-weight:800;
+      padding:6px 10px;
+      border-radius:999px;
     }
 
     .upsell-badge{
@@ -92,8 +136,69 @@
       margin-top:10px;
     }
 
+    .summary-line{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+      font-size:.9rem;
+      opacity:.9;
+    }
+
+    .summary-chip{
+      background:#f7f7f9;
+      border:1px solid #ececf0;
+      border-radius:999px;
+      padding:7px 12px;
+      font-weight:700;
+    }
+
+    .info-i{
+      width:18px;
+      height:18px;
+      background:var(--grey);
+      color:#fff;
+      border-radius:50%;
+      text-align:center;
+      font-size:11px;
+      line-height:18px;
+      cursor:help;
+      position:relative;
+      flex-shrink:0;
+      user-select:none;
+      display:inline-block;
+      vertical-align:middle;
+    }
+
+    .info-i:hover::after{
+      content:attr(data-info);
+      position:absolute;
+      bottom:130%;
+      left:-10px;
+      background:var(--p-dark);
+      color:#fff;
+      padding:12px;
+      border-radius:8px;
+      width:280px;
+      font-weight:400;
+      font-size:.85rem;
+      line-height:1.4;
+      z-index:5000;
+      box-shadow:0 8px 20px rgba(0,0,0,.35);
+      pointer-events:none;
+      white-space:normal;
+      text-align:left;
+    }
+
     .details{
-      margin-top:16px;
+      display:none;
+      margin-top:18px;
+      padding-top:18px;
+      border-top:1px solid var(--line);
+    }
+
+    .pack-card.open .details{
       display:block;
     }
 
@@ -115,6 +220,14 @@
       gap:12px;
       margin:14px 0;
       font-size:.92rem;
+    }
+
+    .service-left{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      min-width:0;
+      flex:1;
     }
 
     .service-label{
@@ -150,56 +263,75 @@
       background:transparent;
     }
 
-    .info-i{
-      width:18px;
-      height:18px;
-      background:var(--grey);
-      color:#fff;
-      border-radius:50%;
-      text-align:center;
-      font-size:11px;
-      line-height:18px;
-      cursor:help;
-      position:relative;
-      flex-shrink:0;
-      user-select:none;
+    .builder-panel{
+      margin-top:18px;
+      padding:16px;
+      border:1px solid #ececf0;
+      background:#fafafa;
+      border-radius:14px;
     }
 
-    .info-i:hover::after{
-      content:attr(data-info);
-      position:absolute;
-      bottom:130%;
-      left:-10px;
-      background:var(--p-dark);
-      color:#fff;
-      padding:12px;
-      border-radius:8px;
-      width:280px;
-      font-weight:400;
-      font-size:.85rem;
-      line-height:1.4;
-      z-index:5000;
-      box-shadow:0 8px 20px rgba(0,0,0,.35);
-      pointer-events:none;
-      white-space:normal;
-      text-align:left;
+    .builder-line{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin:8px 0;
+      font-size:.95rem;
     }
 
-    .hint-block{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:var(--soft-warning);
-      color:#8a496f;
-      font-size:.9rem;
-      line-height:1.45;
-      font-weight:700;
+    .builder-line strong{
+      font-size:1rem;
     }
 
-    .helper-line{
+    .status-lock{
       margin-top:10px;
-      font-size:.88rem;
-      opacity:.8;
+      color:#8a496f;
+      font-weight:800;
+      font-size:.92rem;
+    }
+
+    .status-ok{
+      margin-top:10px;
+      color:var(--ok);
+      font-weight:800;
+      font-size:.92rem;
+    }
+
+    .actions-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    .btn-linkish{
+      border:none;
+      background:transparent;
+      padding:0;
+      color:var(--accent);
+      font-weight:800;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn-pack{
+      border:none;
+      background:var(--accent);
+      color:#fff;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:900;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn-pack:disabled{
+      background:var(--grey);
+      cursor:not-allowed;
+      opacity:.6;
     }
 
     .footer-summary{
@@ -509,6 +641,15 @@
         flex-direction:column;
         align-items:stretch;
       }
+
+      .pack-top{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .pack-top-right{
+        align-items:flex-start;
+      }
     }
   </style>
 </head>
@@ -601,7 +742,7 @@
   const UI = {
     fr: {
       pageTitle: "Votre pack startup",
-      pageSubtitle: "Composez votre pack en ajoutant des quantités aux services.",
+      pageSubtitle: "Cliquez sur un pack pour le composer puis validez-le.",
       statusTextEmpty: "Sélectionnez vos packs",
       statusTextSelected: (n) => n + " pack(s) sélectionné(s)",
       btnBooking: "Visualiser mon accompagnement",
@@ -621,20 +762,26 @@
       recapTitle: "Récapitulatif",
       send: "Envoyer et réserver",
       pending: "Description en attente",
-      composeHint: "Composez votre pack pour atteindre l’offre préférentielle ou contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
-      packLocked: "Ajoutez des quantités pour atteindre l’offre préférentielle",
+      openPack: "Composer ce pack",
+      closePack: "Réduire",
+      choosePack: "Choisir ce pack",
+      selectedPack: "Pack sélectionné",
       readyToSelect: "Offre préférentielle disponible",
-      outOfPackLabel: "Services à la carte",
-      packPriceLabel: "Prix pack",
+      packLocked: "Ajoutez des quantités pour débloquer le prix pack",
       servicesTotalLabel: "Total services",
+      packPriceLabel: "Prix pack",
       grandTotalLabel: "Total général HT",
-      packThresholdHint: (amount) => "Seuil à atteindre : " + amount,
-      upsellBadge: "-2% appliqués par service additionnel",
-      noPackSelectedHint: "Sélectionnez au moins un pack disponible pour continuer."
+      thresholdLabel: "Seuil pack",
+      selectedHint: "Ce pack est inclus dans votre sélection.",
+      bookingHint: "Sélectionnez au moins un pack pour continuer.",
+      aLaCarteInfo: "Composez votre pack pour atteindre l’offre préférentielle ou contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
+      infoLabel: "Info",
+      removePack: "Retirer ce pack",
+      upsellBadge: "-2% appliqués par service additionnel"
     },
     en: {
       pageTitle: "Your startup pack",
-      pageSubtitle: "Build your pack by adding quantities to the services.",
+      pageSubtitle: "Click a pack to build it, then validate it.",
       statusTextEmpty: "Select your packs",
       statusTextSelected: (n) => n + " pack(s) selected",
       btnBooking: "View my offer",
@@ -654,16 +801,22 @@
       recapTitle: "Summary",
       send: "Send and book",
       pending: "Description pending",
-      composeHint: "Build your pack to reach the preferential offer, or contact us to move to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
-      packLocked: "Add quantities to unlock the preferential offer",
+      openPack: "Build this pack",
+      closePack: "Collapse",
+      choosePack: "Choose this pack",
+      selectedPack: "Pack selected",
       readyToSelect: "Preferential offer available",
-      outOfPackLabel: "À la carte services",
-      packPriceLabel: "Pack price",
+      packLocked: "Add quantities to unlock the pack price",
       servicesTotalLabel: "Services total",
+      packPriceLabel: "Pack price",
       grandTotalLabel: "Grand total excl. VAT",
-      packThresholdHint: (amount) => "Threshold to reach: " + amount,
-      upsellBadge: "-2% applied on each additional service",
-      noPackSelectedHint: "Select at least one available pack to continue."
+      thresholdLabel: "Pack threshold",
+      selectedHint: "This pack is included in your selection.",
+      bookingHint: "Select at least one pack to continue.",
+      aLaCarteInfo: "Build your pack to reach the preferential offer, or contact us to move to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
+      infoLabel: "Info",
+      removePack: "Remove this pack",
+      upsellBadge: "-2% applied on each additional service"
     }
   };
 
@@ -686,22 +839,17 @@
       "Sourcing sur plan": "Sourcing from drawings",
       "Sourcing innovation ou fonction complète": "Innovation sourcing or full function",
       "Sourcing sur plan - double sourcing": "Sourcing from drawings - dual sourcing",
-
       "Sketching/modeling 3D - 3 jours": "3D sketching and modeling - 3 days",
       "Design 2D/3D - 3 jours": "2D and 3D design - 3 days",
       "Intégration 1 composant": "Integration of 1 component",
-
       "Contrôle avant expédition [OQC] - 7h de contrôle - Asie": "Pre shipment inspection [OQC] - 7 hour inspection - Asia",
       "Suivi fabrication - expédition / par commande - Asie": "Production and shipment follow up / per order - Asia",
       "Suivi  fabrication - expédition / par commande - Asie": "Production and shipment follow up / per order - Asia",
-
       "Evaluation fournisseur": "Supplier assessment",
       "Audit RSE": "ESG audit",
       "Audit conformité produit": "Product compliance audit",
-
       "Audit process avant série - France (Europe : + frais réels facturés en sus)": "Pre series process audit - France (Europe: additional actual travel costs billed separately)",
       "Audit process avant série Asie": "Pre series process audit - Asia",
-
       "Simulation & Analyse 1 élément": "Simulation and analysis - 1 element",
       "Simulation & Analyse - Complexe 3 éléments": "Simulation and analysis - complex 3 elements",
       "Analyse de sécurité fonctionnelle": "Functional safety analysis"
@@ -709,49 +857,34 @@
     infos: {
       "Produit standardisé fabriqué en série et disponible à l'achat direct, sans développement sur mesure":
         "Standardized mass produced product available for direct purchase, with no custom development required.",
-
       "Le sourcing sur plan désigne la recherche et la sélection de fournisseurs pour fabriquer des composants ou pièces selon un plan technique fourni":
         "Sourcing from drawings means identifying and selecting suppliers to manufacture components or parts based on a provided technical drawing.",
-
       "Modélisation 3D initiale (CAD) à partir d'idées ou scans pour visualiser le concept":
         "Initial 3D CAD modeling based on ideas or scans to visualize the concept.",
-
       "Le sourcing innovation désigne la recherche de solutions sur cahier des charges fonctionnel":
         "Innovation sourcing means identifying solutions based on a functional specification.",
-
       "Le contrôle avant expédition ou Outgoing Quality Control, est un contrôle qualité réalisé sur les produits finis avant leur expédition, pour vérifier leur conformité aux spécifications":
         "Pre shipment inspection, also called Outgoing Quality Control, is a quality check carried out on finished products before shipment to verify compliance with specifications.",
-
       "Supervise la ponctualité des fournisseurs et des livraisons":
         "Monitors supplier punctuality and deliveries.",
-
       "Audit qui évalue l'aptitude, les processus et pratiques d'un fournisseur":
         "Audit that evaluates a supplier's capabilities, processes, and practices.",
-
       "Evalue les performances ESG":
         "Assesses ESG performance.",
-
       "Conception élément de structure (3 jours ingéniérie + 1 jour interface Bridging France)":
         "Structural element design (3 engineering days plus 1 coordination day with Bridging France).",
-
       "Intégration composant sur structure sur base d'un plan (3 jours)":
         "Component integration into a structure based on a drawing (3 days).",
-
       "Evalue la conformité et la qualification d'un produit aux exigences clients":
         "Assesses a product's compliance and qualification against customer requirements.",
-
       "Evalue la conformité d'un process avant démarrage série d'un produit":
         "Assesses process compliance before the start of serial production.",
-
       "Evalue la conformité d'un process autour du démarrage série d'un produit":
         "Assesses process compliance around the start of serial production.",
-
       "Simulations multiphysiques (mécanique, fluides, électromagnétique) pour homologation performance/sécurité sur plan fourni":
         "Multiphysics simulations (mechanical, fluid, electromagnetic) for certification of performance and safety based on the provided drawings.",
-
       "Utilisation d'outils pour s'assurer que le produit répond aux normes de sécurité sur plan fourni":
         "Use of engineering tools to ensure the product meets safety standards based on the provided drawings.",
-
       "Le sourcing sur plan désigne la sélection de fournisseurs selon des plans techniques précis (dessins, specs). Le double sourcing implique un 2ème fournisseur pour le même produit afin de minimiser les risques et optimiser les couts":
         "Sourcing from drawings means selecting suppliers based on precise technical plans and specifications. Dual sourcing means using a second supplier for the same product to reduce risks and optimize costs."
     }
@@ -949,7 +1082,6 @@
     const threshold = basePrice - getDelta(pack.name);
 
     let servicesSum = 0;
-    let addedSum = 0;
     let totalQty = 0;
 
     for(const group of pack.groups){
@@ -957,23 +1089,20 @@
         const qty = clampInt(packSelection.services.get(service.id), 0, 999);
         const lineTotal = (Number(service.unitPrice) || 0) * qty;
         servicesSum += lineTotal;
-        addedSum += lineTotal;
         totalQty += qty;
       }
     }
 
-    const isUnlockable = totalQty > 0 && servicesSum >= threshold;
+    const selectable = totalQty > 0 && servicesSum >= threshold;
 
-    if(!isUnlockable){
+    if(!selectable){
       return {
         totalQty,
         servicesSum,
         threshold,
-        ok: false,
         selectable: false,
         displayPrice: basePrice,
-        isUpsell: false,
-        helperMessage: T.composeHint
+        isUpsell: false
       };
     }
 
@@ -982,14 +1111,13 @@
         totalQty,
         servicesSum,
         threshold,
-        ok: true,
         selectable: true,
         displayPrice: basePrice,
-        isUpsell: false,
-        helperMessage: T.readyToSelect
+        isUpsell: false
       };
     }
 
+    const addedSum = servicesSum;
     const discount = addedSum * UPSELL_DISCOUNT;
     const displayPrice = basePrice + (addedSum - discount);
 
@@ -997,11 +1125,9 @@
       totalQty,
       servicesSum,
       threshold,
-      ok: true,
       selectable: true,
       displayPrice,
-      isUpsell: displayPrice > basePrice,
-      helperMessage: T.readyToSelect
+      isUpsell: displayPrice > basePrice
     };
   }
 
@@ -1039,60 +1165,129 @@
 
   let PACKS = [];
   let SELECTION = null;
+  let OPEN_PACK_NAME = null;
 
   function selectedHasUpsell(){
     for(const pack of PACKS){
       const sel = SELECTION.get(pack.name);
       if(!sel || !sel.active) continue;
       const calc = computePack(pack, sel);
-      if(calc.ok && calc.isUpsell) return true;
+      if(calc.isUpsell) return true;
     }
     return false;
+  }
+
+  function closeOtherPacks(packName){
+    OPEN_PACK_NAME = (OPEN_PACK_NAME === packName) ? null : packName;
+  }
+
+  function choosePack(packName){
+    const pack = PACKS.find(p => p.name === packName);
+    const sel = SELECTION.get(packName);
+    if(!pack || !sel) return;
+
+    const calc = computePack(pack, sel);
+    if(!calc.selectable) return;
+
+    sel.active = true;
+    OPEN_PACK_NAME = null;
+    render();
+  }
+
+  function removePack(packName){
+    const sel = SELECTION.get(packName);
+    if(!sel) return;
+    sel.active = false;
+    render();
   }
 
   function renderPackCard(pack){
     const sel = SELECTION.get(pack.name);
     const calc = computePack(pack, sel);
+    const isOpen = OPEN_PACK_NAME === pack.name;
 
     const card = document.createElement("div");
     card.className = "pack-card";
-    if(calc.selectable) card.classList.add("clickable");
+    if(isOpen) card.classList.add("open");
     if(sel.active) card.classList.add("selected");
-    if(!calc.selectable) card.classList.add("locked");
 
-    card.addEventListener("click", (event) => {
-      if(event.target.tagName === "BUTTON" || event.target.tagName === "INPUT") return;
-      if(!calc.selectable) return;
-      sel.active = !sel.active;
+    const top = document.createElement("div");
+    top.className = "pack-top";
+    top.addEventListener("click", () => {
+      closeOtherPacks(pack.name);
       render();
     });
+
+    const topLeft = document.createElement("div");
+    topLeft.className = "pack-top-left";
 
     const meta = document.createElement("div");
     meta.className = "meta";
     meta.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
-    card.appendChild(meta);
+    topLeft.appendChild(meta);
 
     const title = document.createElement("h3");
-    title.style.margin = "6px 0";
+    title.className = "pack-title";
     title.textContent = trPack(pack.name);
-    card.appendChild(title);
+    topLeft.appendChild(title);
 
     const price = document.createElement("div");
     price.className = "price-hero";
     price.textContent = formatEUR(calc.displayPrice);
-    card.appendChild(price);
+    topLeft.appendChild(price);
 
     if(calc.isUpsell){
       const badge = document.createElement("div");
       badge.className = "upsell-badge";
       badge.textContent = T.upsellBadge;
-      card.appendChild(badge);
+      topLeft.appendChild(badge);
     }
 
-    const helper = document.createElement("div");
-    helper.className = "helper-line";
-    helper.textContent = T.packThresholdHint(formatEUR(calc.threshold));
-    card.appendChild(helper);
+    const summaryLine = document.createElement("div");
+    summaryLine.className = "summary-line";
+
+    const chipThreshold = document.createElement("span");
+    chipThreshold.className = "summary-chip";
+    chipThreshold.textContent = T.thresholdLabel + " : " + formatEUR(calc.threshold);
+    summaryLine.appendChild(chipThreshold);
+
+    const chipServices = document.createElement("span");
+    chipServices.className = "summary-chip";
+    chipServices.textContent = T.servicesTotalLabel + " : " + formatEUR(calc.servicesSum);
+    summaryLine.appendChild(chipServices);
+
+    const info = document.createElement("span");
+    info.className = "info-i";
+    info.setAttribute("data-info", T.aLaCarteInfo);
+    info.textContent = "i";
+    summaryLine.appendChild(info);
+
+    topLeft.appendChild(summaryLine);
+
+    const topRight = document.createElement("div");
+    topRight.className = "pack-top-right";
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.className = "toggle-btn";
+    toggleBtn.textContent = isOpen ? T.closePack : T.openPack;
+    toggleBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      closeOtherPacks(pack.name);
+      render();
+    });
+    topRight.appendChild(toggleBtn);
+
+    if(sel.active){
+      const selectedBadge = document.createElement("div");
+      selectedBadge.className = "selected-badge";
+      selectedBadge.textContent = T.selectedPack;
+      topRight.appendChild(selectedBadge);
+    }
+
+    top.appendChild(topLeft);
+    top.appendChild(topRight);
+    card.appendChild(top);
 
     const details = document.createElement("div");
     details.className = "details";
@@ -1107,16 +1302,21 @@
         const row = document.createElement("div");
         row.className = "service-row";
 
-        const info = document.createElement("span");
-        info.className = "info-i";
-        info.textContent = "i";
-        info.setAttribute("data-info", trInfo(service.info || T.pending) || T.pending);
-        row.appendChild(info);
+        const left = document.createElement("div");
+        left.className = "service-left";
+
+        const bubble = document.createElement("span");
+        bubble.className = "info-i";
+        bubble.textContent = "i";
+        bubble.setAttribute("data-info", trInfo(service.info || T.pending) || T.pending);
 
         const label = document.createElement("span");
         label.className = "service-label";
         label.textContent = trService(service.title);
-        row.appendChild(label);
+
+        left.appendChild(bubble);
+        left.appendChild(label);
+        row.appendChild(left);
 
         const qtyBox = document.createElement("div");
         qtyBox.className = "qty-box";
@@ -1128,9 +1328,12 @@
           ev.stopPropagation();
           const current = clampInt(sel.services.get(service.id), 0, 999);
           sel.services.set(service.id, clampInt(current - 1, 0, 999));
-          if(sel.active && !computePack(pack, sel).selectable){
+
+          const updated = computePack(pack, sel);
+          if(sel.active && !updated.selectable){
             sel.active = false;
           }
+
           render();
         });
 
@@ -1158,13 +1361,69 @@
       }
     }
 
-    const hintBlock = document.createElement("div");
-    hintBlock.className = "hint-block";
-    hintBlock.textContent = calc.selectable ? T.readyToSelect : T.composeHint;
-    details.appendChild(hintBlock);
+    const builderPanel = document.createElement("div");
+    builderPanel.className = "builder-panel";
+
+    const line1 = document.createElement("div");
+    line1.className = "builder-line";
+    line1.innerHTML = `<span>${escapeHtml(T.servicesTotalLabel)}</span><strong>${formatEUR(calc.servicesSum)}</strong>`;
+    builderPanel.appendChild(line1);
+
+    const line2 = document.createElement("div");
+    line2.className = "builder-line";
+    line2.innerHTML = `<span>${escapeHtml(T.packPriceLabel)}</span><strong>${formatEUR(calc.displayPrice)}</strong>`;
+    builderPanel.appendChild(line2);
+
+    const line3 = document.createElement("div");
+    line3.className = "builder-line";
+    line3.innerHTML = `<span>${escapeHtml(T.thresholdLabel)}</span><strong>${formatEUR(calc.threshold)}</strong>`;
+    builderPanel.appendChild(line3);
+
+    const statusLine = document.createElement("div");
+    statusLine.className = calc.selectable ? "status-ok" : "status-lock";
+    statusLine.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
+    builderPanel.appendChild(statusLine);
+
+    const actions = document.createElement("div");
+    actions.className = "actions-row";
+
+    if(sel.active){
+      const leftText = document.createElement("div");
+      leftText.className = "small";
+      leftText.textContent = T.selectedHint;
+      actions.appendChild(leftText);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-linkish";
+      removeBtn.textContent = T.removePack;
+      removeBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        removePack(pack.name);
+      });
+      actions.appendChild(removeBtn);
+    } else {
+      const spacer = document.createElement("div");
+      spacer.className = "small";
+      spacer.textContent = "";
+      actions.appendChild(spacer);
+
+      const chooseBtn = document.createElement("button");
+      chooseBtn.type = "button";
+      chooseBtn.className = "btn-pack";
+      chooseBtn.textContent = T.choosePack;
+      chooseBtn.disabled = !calc.selectable;
+      chooseBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        choosePack(pack.name);
+      });
+      actions.appendChild(chooseBtn);
+    }
+
+    builderPanel.appendChild(actions);
+    details.appendChild(builderPanel);
 
     card.appendChild(details);
-
     return { card, calc };
   }
 
@@ -1174,19 +1433,14 @@
 
     let selectedCount = 0;
     let total = 0;
-    let hasInvalidSelection = false;
 
     for(const pack of PACKS){
       const sel = SELECTION.get(pack.name);
       const { card, calc } = renderPackCard(pack);
 
       if(sel.active){
-        if(calc.ok){
-          selectedCount += 1;
-          total += calc.displayPrice;
-        } else {
-          hasInvalidSelection = true;
-        }
+        selectedCount += 1;
+        total += calc.displayPrice;
       }
 
       grid.appendChild(card);
@@ -1197,7 +1451,7 @@
       ? T.statusTextSelected(selectedCount)
       : T.statusTextEmpty;
 
-    document.getElementById("btnBooking").disabled = selectedCount === 0 || hasInvalidSelection;
+    document.getElementById("btnBooking").disabled = selectedCount === 0;
   }
 
   function buildRecapHTML(){
@@ -1222,14 +1476,10 @@
         }
       }
 
-      if(!calc.ok){
-        html += `<div class="recap-total"><div>${escapeHtml(T.outOfPackLabel)}</div><div>${formatEUR(calc.servicesSum)}</div></div>`;
-      } else {
-        html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
-        grandTotal += calc.displayPrice;
-      }
-
+      html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
       html += `</div>`;
+
+      grandTotal += calc.displayPrice;
     }
 
     html += `<div class="recap-grand"><div>${escapeHtml(T.grandTotalLabel)}</div><div>${formatEUR(grandTotal)}</div></div>`;
@@ -1271,7 +1521,7 @@
 
     document.getElementById("recapTitle").textContent = T.recapTitle;
     document.getElementById("sendLead").textContent = T.send;
-    document.getElementById("leadHint").textContent = T.noPackSelectedHint;
+    document.getElementById("leadHint").textContent = T.bookingHint;
   }
 
   async function boot(){
@@ -1313,9 +1563,9 @@
 
         try {
           await fetch(WORKER_SEND_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body:JSON.stringify(payload)
           });
 
           window.open(bookingUrl, "_blank");
@@ -1326,7 +1576,7 @@
 
       render();
     } catch(error) {
-      status.textContent = "Unable to load the catalog.";
+      status.textContent = IS_EN ? "Unable to load the catalog." : "Impossible de charger le catalogue.";
     }
   }
 

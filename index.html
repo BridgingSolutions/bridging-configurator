@@ -586,6 +586,11 @@
       lLast: "Nom",
       lEmail: "Email",
       lPhone: "Téléphone",
+      phCompany: "Nom de l’entreprise",
+      phFirst: "Prénom",
+      phLast: "Nom",
+      phEmail: "email@exemple.com",
+      phPhone: "+33 …",
       recapTitle: "Récapitulatif",
       send: "Envoyer et réserver",
       pending: "Description en attente",
@@ -609,6 +614,11 @@
       lLast: "Last name",
       lEmail: "Email",
       lPhone: "Phone",
+      phCompany: "Company name",
+      phFirst: "First name",
+      phLast: "Last name",
+      phEmail: "email@example.com",
+      phPhone: "+33 ...",
       recapTitle: "Summary",
       send: "Send and book",
       pending: "Description pending",
@@ -699,7 +709,7 @@
         "Monitors supplier punctuality and deliveries.",
 
       "Audit qui évalue l'aptitude, les processus et pratiques d'un fournisseur":
-        "Audit that evaluates a supplier capabilities, processes, and practices.",
+        "Audit that evaluates a supplier's capabilities, processes, and practices.",
 
       "Evalue les performances ESG":
         "Assesses ESG performance.",
@@ -711,7 +721,7 @@
         "Component integration into a structure based on a drawing (3 days).",
 
       "Evalue la conformité et la qualification d'un produit aux exigences clients":
-        "Assesses a product compliance and qualification against customer requirements.",
+        "Assesses a product's compliance and qualification against customer requirements.",
 
       "Evalue la conformité d'un process avant démarrage série d'un produit":
         "Assesses process compliance before the start of serial production.",
@@ -818,12 +828,12 @@
         continue;
       }
 
-      if(!inQuotes && (ch === ',' || ch === '\t' || ch === '\n' || ch === '\r')){
-        if(ch === '\r' && text[i + 1] === '\n') i++;
+      if(!inQuotes && (ch === "," || ch === "\t" || ch === "\n" || ch === "\r")){
+        if(ch === "\r" && text[i + 1] === "\n") i++;
         row.push(field);
         field = "";
 
-        if(ch === '\n' || ch === '\r'){
+        if(ch === "\n" || ch === "\r"){
           if(row.length > 1 || (row[0] || "").trim() !== ""){
             rows.push(row);
           }
@@ -1043,6 +1053,7 @@
           qtyBox.className = "qty-box";
 
           const btnMinus = document.createElement("button");
+          btnMinus.type = "button";
           btnMinus.textContent = "−";
           btnMinus.addEventListener("click", (ev) => {
             ev.stopPropagation();
@@ -1057,6 +1068,7 @@
           input.value = String(clampInt(sel.services.get(svc.id), 0, 999));
 
           const btnPlus = document.createElement("button");
+          btnPlus.type = "button";
           btnPlus.textContent = "+";
           btnPlus.addEventListener("click", (ev) => {
             ev.stopPropagation();
@@ -1143,6 +1155,16 @@
     return html;
   }
 
+  function selectedHasUpsell(){
+    for(const pack of PACKS){
+      const sel = SELECTION.get(pack.name);
+      if(!sel || !sel.active) continue;
+      const calc = computePack(pack, sel);
+      if(calc.ok && calc.isUpsell) return true;
+    }
+    return false;
+  }
+
   function openLeadModal(){
     document.getElementById("fRecap").innerHTML = buildRecapHTML();
     document.getElementById("leadModal").style.display = "block";
@@ -1154,6 +1176,8 @@
 
   async function boot(){
     setLangLinks();
+
+    document.documentElement.lang = IS_EN ? "en" : "fr";
 
     document.getElementById("pageTitle").textContent = T.pageTitle;
     document.getElementById("pageSubtitle").textContent = T.pageSubtitle;
@@ -1169,6 +1193,12 @@
     document.getElementById("lLast").textContent = T.lLast;
     document.getElementById("lEmail").textContent = T.lEmail;
     document.getElementById("lPhone").textContent = T.lPhone;
+
+    document.getElementById("fCompany").placeholder = T.phCompany;
+    document.getElementById("fFirst").placeholder = T.phFirst;
+    document.getElementById("fLast").placeholder = T.phLast;
+    document.getElementById("fEmail").placeholder = T.phEmail;
+    document.getElementById("fPhone").placeholder = T.phPhone;
 
     document.getElementById("recapTitle").textContent = T.recapTitle;
     document.getElementById("sendLead").textContent = T.send;
@@ -1197,7 +1227,7 @@
         email: document.getElementById("fEmail").value.trim(),
         phone: document.getElementById("fPhone").value.trim(),
         recap: document.getElementById("fRecap").innerText,
-        hasUpsell: document.querySelectorAll(".upsell-badge").length > 0
+        hasUpsell: selectedHasUpsell()
       };
 
       if(!payload.company || !payload.firstname || !payload.lastname || !payload.email || !payload.phone) return;

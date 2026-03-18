@@ -15,7 +15,6 @@
       --gold:#d4af37;
       --soft-warning:#f6eef3;
       --line:#ececf0;
-      --ok:#4d7c57;
     }
 
     *, *::before, *::after { box-sizing:border-box; }
@@ -76,15 +75,14 @@
     }
 
     .meta{
-      font-size:.72rem;
-      color:var(--grey);
-      text-transform:uppercase;
-      letter-spacing:.4px;
-      min-height:1em;
+      min-height:0;
+      margin:0;
+      font-size:0;
+      line-height:0;
     }
 
     .pack-title{
-      margin:6px 0;
+      margin:0 0 6px 0;
       font-size:1.35rem;
       line-height:1.2;
     }
@@ -144,14 +142,6 @@
       margin-top:12px;
       font-size:.9rem;
       opacity:.9;
-    }
-
-    .summary-chip{
-      background:#f7f7f9;
-      border:1px solid #ececf0;
-      border-radius:999px;
-      padding:7px 12px;
-      font-weight:700;
     }
 
     .info-i{
@@ -271,29 +261,14 @@
       border-radius:14px;
     }
 
-    .builder-line{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin:8px 0;
-      font-size:.95rem;
-    }
-
-    .builder-line strong{
-      font-size:1rem;
-    }
-
     .status-lock{
-      margin-top:10px;
-      color:#8a496f;
+      color:var(--accent);
       font-weight:800;
       font-size:.92rem;
     }
 
     .status-ok{
-      margin-top:10px;
-      color:var(--ok);
+      color:var(--p-dark);
       font-weight:800;
       font-size:.92rem;
     }
@@ -303,7 +278,7 @@
       justify-content:space-between;
       align-items:center;
       gap:12px;
-      margin-top:16px;
+      margin-top:6px;
       flex-wrap:wrap;
     }
 
@@ -768,14 +743,9 @@
       selectedPack: "Pack sélectionné",
       readyToSelect: "Offre préférentielle disponible",
       packLocked: "Ajoutez des quantités pour débloquer le prix pack",
-      servicesTotalLabel: "Total services",
-      packPriceLabel: "Prix pack",
-      grandTotalLabel: "Total général HT",
-      thresholdLabel: "Seuil pack",
       selectedHint: "Ce pack est inclus dans votre sélection.",
       bookingHint: "Sélectionnez au moins un pack pour continuer.",
       aLaCarteInfo: "Composez votre pack pour atteindre l’offre préférentielle ou contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
-      infoLabel: "Info",
       removePack: "Retirer ce pack",
       upsellBadge: "-2% appliqués par service additionnel"
     },
@@ -807,14 +777,9 @@
       selectedPack: "Pack selected",
       readyToSelect: "Preferential offer available",
       packLocked: "Add quantities to unlock the pack price",
-      servicesTotalLabel: "Services total",
-      packPriceLabel: "Pack price",
-      grandTotalLabel: "Grand total excl. VAT",
-      thresholdLabel: "Pack threshold",
       selectedHint: "This pack is included in your selection.",
       bookingHint: "Select at least one pack to continue.",
       aLaCarteInfo: "Build your pack to reach the preferential offer, or contact us to move to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
-      infoLabel: "Info",
       removePack: "Remove this pack",
       upsellBadge: "-2% applied on each additional service"
     }
@@ -1223,7 +1188,7 @@
 
     const meta = document.createElement("div");
     meta.className = "meta";
-    meta.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
+    meta.textContent = "";
     topLeft.appendChild(meta);
 
     const title = document.createElement("h3");
@@ -1245,16 +1210,6 @@
 
     const summaryLine = document.createElement("div");
     summaryLine.className = "summary-line";
-
-    const chipThreshold = document.createElement("span");
-    chipThreshold.className = "summary-chip";
-    chipThreshold.textContent = T.thresholdLabel + " : " + formatEUR(calc.threshold);
-    summaryLine.appendChild(chipThreshold);
-
-    const chipServices = document.createElement("span");
-    chipServices.className = "summary-chip";
-    chipServices.textContent = T.servicesTotalLabel + " : " + formatEUR(calc.servicesSum);
-    summaryLine.appendChild(chipServices);
 
     const info = document.createElement("span");
     info.className = "info-i";
@@ -1364,32 +1319,12 @@
     const builderPanel = document.createElement("div");
     builderPanel.className = "builder-panel";
 
-    const line1 = document.createElement("div");
-    line1.className = "builder-line";
-    line1.innerHTML = `<span>${escapeHtml(T.servicesTotalLabel)}</span><strong>${formatEUR(calc.servicesSum)}</strong>`;
-    builderPanel.appendChild(line1);
-
-    const line2 = document.createElement("div");
-    line2.className = "builder-line";
-    line2.innerHTML = `<span>${escapeHtml(T.packPriceLabel)}</span><strong>${formatEUR(calc.displayPrice)}</strong>`;
-    builderPanel.appendChild(line2);
-
-    const line3 = document.createElement("div");
-    line3.className = "builder-line";
-    line3.innerHTML = `<span>${escapeHtml(T.thresholdLabel)}</span><strong>${formatEUR(calc.threshold)}</strong>`;
-    builderPanel.appendChild(line3);
-
-    const statusLine = document.createElement("div");
-    statusLine.className = calc.selectable ? "status-ok" : "status-lock";
-    statusLine.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
-    builderPanel.appendChild(statusLine);
-
     const actions = document.createElement("div");
     actions.className = "actions-row";
 
     if(sel.active){
       const leftText = document.createElement("div");
-      leftText.className = "small";
+      leftText.className = "status-ok";
       leftText.textContent = T.selectedHint;
       actions.appendChild(leftText);
 
@@ -1403,10 +1338,10 @@
       });
       actions.appendChild(removeBtn);
     } else {
-      const spacer = document.createElement("div");
-      spacer.className = "small";
-      spacer.textContent = "";
-      actions.appendChild(spacer);
+      const leftText = document.createElement("div");
+      leftText.className = calc.selectable ? "status-ok" : "status-lock";
+      leftText.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
+      actions.appendChild(leftText);
 
       const chooseBtn = document.createElement("button");
       chooseBtn.type = "button";
@@ -1476,13 +1411,13 @@
         }
       }
 
-      html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
+      html += `<div class="recap-total"><div>${escapeHtml("Prix pack")}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
       html += `</div>`;
 
       grandTotal += calc.displayPrice;
     }
 
-    html += `<div class="recap-grand"><div>${escapeHtml(T.grandTotalLabel)}</div><div>${formatEUR(grandTotal)}</div></div>`;
+    html += `<div class="recap-grand"><div>${escapeHtml(IS_EN ? "Grand total excl. VAT" : "Total général HT")}</div><div>${formatEUR(grandTotal)}</div></div>`;
     return html;
   }
 

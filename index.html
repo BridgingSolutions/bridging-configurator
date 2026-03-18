@@ -49,6 +49,7 @@
       padding:26px;
       border:3px solid transparent;
       transition:.2s ease;
+      cursor:pointer;
     }
 
     .pack-card.open{
@@ -65,7 +66,6 @@
       justify-content:space-between;
       align-items:flex-start;
       gap:16px;
-      cursor:pointer;
     }
 
     .pack-top-left{
@@ -100,18 +100,6 @@
       align-items:flex-end;
       gap:8px;
       flex-shrink:0;
-    }
-
-    .toggle-btn{
-      border:1px solid #ddd;
-      background:#fafafa;
-      color:var(--p-dark);
-      border-radius:12px;
-      padding:10px 14px;
-      font-weight:900;
-      cursor:pointer;
-      font:inherit;
-      white-space:nowrap;
     }
 
     .selected-badge{
@@ -176,6 +164,7 @@
       margin-top:18px;
       padding-top:18px;
       border-top:1px solid var(--line);
+      cursor:default;
     }
 
     .pack-card.open .details{
@@ -258,6 +247,15 @@
       gap:12px;
       margin-top:6px;
       flex-wrap:wrap;
+    }
+
+    .status-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:0;
+      flex:1;
     }
 
     .status-lock{
@@ -729,8 +727,6 @@
       recapTitle: "Récapitulatif",
       send: "Envoyer et réserver",
       pending: "Description en attente",
-      openPack: "Composer ce pack",
-      closePack: "Réduire",
       choosePack: "Choisir ce pack",
       selectedPack: "Pack sélectionné",
       readyToSelect: "Offre préférentielle disponible",
@@ -765,8 +761,6 @@
       recapTitle: "Summary",
       send: "Send and book",
       pending: "Description pending",
-      openPack: "Build this pack",
-      closePack: "Collapse",
       choosePack: "Choose this pack",
       selectedPack: "Pack selected",
       readyToSelect: "Preferential offer available",
@@ -1156,12 +1150,13 @@
     if(isOpen) card.classList.add("open");
     if(sel.active) card.classList.add("selected");
 
-    const top = document.createElement("div");
-    top.className = "pack-top";
-    top.addEventListener("click", () => {
+    card.addEventListener("click", () => {
       togglePack(pack.name);
       render();
     });
+
+    const top = document.createElement("div");
+    top.className = "pack-top";
 
     const topLeft = document.createElement("div");
     topLeft.className = "pack-top-left";
@@ -1179,12 +1174,6 @@
     price.textContent = formatEUR(calc.displayPrice);
     priceRow.appendChild(price);
 
-    const info = document.createElement("span");
-    info.className = "info-i";
-    info.setAttribute("data-info", T.aLaCarteInfo);
-    info.textContent = "i";
-    priceRow.appendChild(info);
-
     topLeft.appendChild(priceRow);
 
     if(calc.isUpsell){
@@ -1196,17 +1185,6 @@
 
     const topRight = document.createElement("div");
     topRight.className = "pack-top-right";
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.type = "button";
-    toggleBtn.className = "toggle-btn";
-    toggleBtn.textContent = isOpen ? T.closePack : T.openPack;
-    toggleBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      togglePack(pack.name);
-      render();
-    });
-    topRight.appendChild(toggleBtn);
 
     if(sel.active){
       const selectedBadge = document.createElement("div");
@@ -1221,6 +1199,7 @@
 
     const details = document.createElement("div");
     details.className = "details";
+    details.addEventListener("click", (ev) => ev.stopPropagation());
 
     for(const group of pack.groups){
       const groupTitle = document.createElement("div");
@@ -1298,10 +1277,15 @@
     actions.className = "actions-row";
 
     if(sel.active){
+      const statusWrap = document.createElement("div");
+      statusWrap.className = "status-wrap";
+
       const leftText = document.createElement("div");
       leftText.className = "status-ok";
       leftText.textContent = T.selectedHint;
-      actions.appendChild(leftText);
+      statusWrap.appendChild(leftText);
+
+      actions.appendChild(statusWrap);
 
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
@@ -1313,10 +1297,21 @@
       });
       actions.appendChild(removeBtn);
     } else {
+      const statusWrap = document.createElement("div");
+      statusWrap.className = "status-wrap";
+
       const leftText = document.createElement("div");
       leftText.className = calc.selectable ? "status-ok" : "status-lock";
       leftText.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
-      actions.appendChild(leftText);
+      statusWrap.appendChild(leftText);
+
+      const inlineInfo = document.createElement("span");
+      inlineInfo.className = "info-i";
+      inlineInfo.textContent = "i";
+      inlineInfo.setAttribute("data-info", T.aLaCarteInfo);
+      statusWrap.appendChild(inlineInfo);
+
+      actions.appendChild(statusWrap);
 
       const chooseBtn = document.createElement("button");
       chooseBtn.type = "button";

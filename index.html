@@ -13,15 +13,16 @@
       --grey:#abb8c3;
       --white:#ffffff;
       --gold:#d4af37;
+      --soft-warning:#f6eef3;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
 
     body{
+      margin:0;
       font-family:Segoe UI,sans-serif;
       background:var(--bg);
       color:var(--p-dark);
-      margin:0;
     }
 
     header{
@@ -47,7 +48,11 @@
       border-radius:15px;
       padding:26px;
       border:3px solid transparent;
-      transition:.2s;
+      transition:.2s ease;
+      cursor:default;
+    }
+
+    .pack-card.clickable{
       cursor:pointer;
     }
 
@@ -56,16 +61,17 @@
       background:var(--pink-soft);
     }
 
-    .pack-card.disabled{
-      border-color:#ad6c93;
-      background:#f6eef3;
-      cursor:default;
+    .pack-card.locked{
+      border-color:#d9d9df;
+      background:#fbfbfc;
     }
 
     .meta{
-      font-size:.7rem;
+      font-size:.72rem;
       color:var(--grey);
       text-transform:uppercase;
+      letter-spacing:.4px;
+      min-height:1em;
     }
 
     .price-hero{
@@ -88,10 +94,6 @@
 
     .details{
       margin-top:16px;
-      display:none;
-    }
-
-    .pack-card.selected .details{
       display:block;
     }
 
@@ -136,6 +138,7 @@
       background:#eee;
       padding:6px 12px;
       cursor:pointer;
+      font:inherit;
     }
 
     .qty-box input{
@@ -182,11 +185,21 @@
       text-align:left;
     }
 
-    .warn{
-      color:#ad6c93;
-      font-size:.82rem;
-      font-weight:900;
+    .hint-block{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:var(--soft-warning);
+      color:#8a496f;
+      font-size:.9rem;
+      line-height:1.45;
+      font-weight:700;
+    }
+
+    .helper-line{
       margin-top:10px;
+      font-size:.88rem;
+      opacity:.8;
     }
 
     .footer-summary{
@@ -204,6 +217,7 @@
       justify-content:space-between;
       align-items:center;
       z-index:1000;
+      gap:20px;
     }
 
     .btn{
@@ -214,6 +228,7 @@
       border-radius:12px;
       font-weight:900;
       cursor:pointer;
+      font:inherit;
     }
 
     .btn:disabled{
@@ -287,7 +302,7 @@
       z-index:9999;
       padding:18px;
       overflow-y:auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling:touch;
     }
 
     .modal-card{
@@ -326,6 +341,7 @@
       padding:10px 12px;
       font-weight:900;
       cursor:pointer;
+      font:inherit;
     }
 
     .lead-grid{
@@ -401,6 +417,7 @@
     .recap-line{
       display:flex;
       justify-content:space-between;
+      gap:12px;
       padding:4px 0;
       opacity:.92;
     }
@@ -412,6 +429,7 @@
       font-weight:900;
       display:flex;
       justify-content:space-between;
+      gap:12px;
     }
 
     .recap-grand{
@@ -422,6 +440,7 @@
       font-weight:900;
       display:flex;
       justify-content:space-between;
+      gap:12px;
     }
 
     .hint{
@@ -444,6 +463,7 @@
       padding:12px 16px;
       font-weight:900;
       cursor:pointer;
+      font:inherit;
     }
 
     @media (max-width:900px){
@@ -484,6 +504,11 @@
         justify-content:center;
         margin-top:10px;
       }
+
+      .footer-summary{
+        flex-direction:column;
+        align-items:stretch;
+      }
     }
   </style>
 </head>
@@ -500,8 +525,8 @@
       <a id="langEN" href="?lang=en">EN</a>
     </div>
 
-    <h1 id="pageTitle">Votre pack startup</h1>
-    <div id="pageSubtitle" class="small">Sélectionnez un ou plusieurs packs.</div>
+    <h1 id="pageTitle"></h1>
+    <div id="pageSubtitle" class="small"></div>
     <div id="status" class="small" style="margin-top:6px;"></div>
   </header>
 
@@ -511,53 +536,53 @@
 
   <div class="footer-summary">
     <div>
-      <div id="statusText" class="small">Sélectionnez vos packs</div>
+      <div id="statusText" class="small"></div>
       <div id="grandTotal" style="font-size:2.2rem;font-weight:900;">0 €</div>
     </div>
-    <button id="btnBooking" class="btn" disabled>Visualiser mon accompagnement</button>
+    <button id="btnBooking" class="btn" disabled></button>
   </div>
 
   <div id="leadModal" class="modal">
     <div class="modal-card">
       <div class="modal-head">
         <div>
-          <h2 id="leadTitle">Vos coordonnées</h2>
-          <p id="leadSubtitle" class="muted">Vous allez recevoir votre récapitulatif par email et pourrez ensuite réserver votre créneau.</p>
+          <h2 id="leadTitle"></h2>
+          <p id="leadSubtitle" class="muted"></p>
         </div>
-        <button id="closeLeadModal" type="button" class="btn-ghost">Fermer</button>
+        <button id="closeLeadModal" type="button" class="btn-ghost"></button>
       </div>
 
       <div class="lead-grid">
         <div class="field full">
-          <label id="lCompany">Entreprise</label>
-          <input id="fCompany" type="text" placeholder="Nom de l’entreprise">
+          <label id="lCompany"></label>
+          <input id="fCompany" type="text">
         </div>
         <div class="field">
-          <label id="lFirst">Prénom</label>
-          <input id="fFirst" type="text" placeholder="Prénom">
+          <label id="lFirst"></label>
+          <input id="fFirst" type="text">
         </div>
         <div class="field">
-          <label id="lLast">Nom</label>
-          <input id="fLast" type="text" placeholder="Nom">
+          <label id="lLast"></label>
+          <input id="fLast" type="text">
         </div>
         <div class="field">
-          <label id="lEmail">Email</label>
-          <input id="fEmail" type="email" placeholder="email@exemple.com">
+          <label id="lEmail"></label>
+          <input id="fEmail" type="email">
         </div>
         <div class="field">
-          <label id="lPhone">Téléphone</label>
-          <input id="fPhone" type="tel" placeholder="+33 …">
+          <label id="lPhone"></label>
+          <input id="fPhone" type="tel">
         </div>
       </div>
 
       <div class="recap-wrap">
-        <div id="recapTitle" class="recap-title">Récapitulatif</div>
+        <div id="recapTitle" class="recap-title"></div>
         <div id="fRecap" class="recap-box"></div>
         <div id="leadHint" class="hint"></div>
       </div>
 
       <div class="modal-actions">
-        <button id="sendLead" type="button" class="btn-primary">Envoyer et réserver</button>
+        <button id="sendLead" type="button" class="btn-primary"></button>
       </div>
     </div>
   </div>
@@ -571,12 +596,14 @@
 
   const LANG = (new URLSearchParams(location.search).get("lang") || "fr").toLowerCase();
   const IS_EN = LANG.startsWith("en");
+  const UPSELL_DISCOUNT = 0.02;
 
   const UI = {
     fr: {
       pageTitle: "Votre pack startup",
-      pageSubtitle: "Sélectionnez un ou plusieurs packs.",
-      statusText: "Sélectionnez vos packs",
+      pageSubtitle: "Composez votre pack en ajoutant des quantités aux services.",
+      statusTextEmpty: "Sélectionnez vos packs",
+      statusTextSelected: (n) => n + " pack(s) sélectionné(s)",
       btnBooking: "Visualiser mon accompagnement",
       leadTitle: "Vos coordonnées",
       leadSubtitle: "Vous allez recevoir votre récapitulatif par email et pourrez ensuite réserver votre créneau.",
@@ -594,17 +621,22 @@
       recapTitle: "Récapitulatif",
       send: "Envoyer et réserver",
       pending: "Description en attente",
-      outOfPack: "Vous sortez du prix préférentiel du pack. Contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
-      upsellBadge: "-2% appliqués par service additionnel",
-      outOfPackLabel: "Hors pack",
+      composeHint: "Composez votre pack pour atteindre l’offre préférentielle ou contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
+      packLocked: "Ajoutez des quantités pour atteindre l’offre préférentielle",
+      readyToSelect: "Offre préférentielle disponible",
+      outOfPackLabel: "Services à la carte",
       packPriceLabel: "Prix pack",
+      servicesTotalLabel: "Total services",
       grandTotalLabel: "Total général HT",
-      packsSelected: (n) => n + " pack(s) sélectionné(s)"
+      packThresholdHint: (amount) => "Seuil à atteindre : " + amount,
+      upsellBadge: "-2% appliqués par service additionnel",
+      noPackSelectedHint: "Sélectionnez au moins un pack disponible pour continuer."
     },
     en: {
       pageTitle: "Your startup pack",
-      pageSubtitle: "Select one or more packs.",
-      statusText: "Select your packs",
+      pageSubtitle: "Build your pack by adding quantities to the services.",
+      statusTextEmpty: "Select your packs",
+      statusTextSelected: (n) => n + " pack(s) selected",
       btnBooking: "View my offer",
       leadTitle: "Your details",
       leadSubtitle: "You will receive your summary by email and can then book your time slot.",
@@ -622,35 +654,20 @@
       recapTitle: "Summary",
       send: "Send and book",
       pending: "Description pending",
-      outOfPack: "You are outside the pack preferential price. Contact us to switch to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
-      upsellBadge: "-2% applied on each additional service",
-      outOfPackLabel: "Outside pack",
+      composeHint: "Build your pack to reach the preferential offer, or contact us to move to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
+      packLocked: "Add quantities to unlock the preferential offer",
+      readyToSelect: "Preferential offer available",
+      outOfPackLabel: "À la carte services",
       packPriceLabel: "Pack price",
+      servicesTotalLabel: "Services total",
       grandTotalLabel: "Grand total excl. VAT",
-      packsSelected: (n) => n + " pack(s) selected"
+      packThresholdHint: (amount) => "Threshold to reach: " + amount,
+      upsellBadge: "-2% applied on each additional service",
+      noPackSelectedHint: "Select at least one available pack to continue."
     }
   };
 
   const T = IS_EN ? UI.en : UI.fr;
-
-  function setLangLinks(){
-    const fr = document.getElementById("langFR");
-    const en = document.getElementById("langEN");
-    if(!fr || !en) return;
-
-    const url = new URL(window.location.href);
-
-    const frUrl = new URL(url);
-    frUrl.searchParams.set("lang", "fr");
-    fr.href = frUrl.pathname + frUrl.search;
-
-    const enUrl = new URL(url);
-    enUrl.searchParams.set("lang", "en");
-    en.href = enUrl.pathname + enUrl.search;
-
-    fr.classList.toggle("active", !IS_EN);
-    en.classList.toggle("active", IS_EN);
-  }
 
   const TR = {
     packs: {
@@ -764,17 +781,6 @@
     return IS_EN ? (TR.infos[key] || key) : key;
   }
 
-  function getDelta(name){
-    const n = normalizeKey(name).toLowerCase();
-    if(n.includes("idéation")) return 700;
-    if(n.includes("prototype")) return 1000;
-    if(n.includes("homologation")) return 1500;
-    if(n.includes("industrialisation")) return 1200;
-    return 1200;
-  }
-
-  const UPSELL_DISCOUNT = 0.02;
-
   function getBasePrice(name){
     const n = normalizeKey(name).toLowerCase();
     if(n.includes("idéation")) return 5000;
@@ -782,6 +788,15 @@
     if(n.includes("homologation")) return 10000;
     if(n.includes("industrialisation")) return 10000;
     return 0;
+  }
+
+  function getDelta(name){
+    const n = normalizeKey(name).toLowerCase();
+    if(n.includes("idéation")) return 700;
+    if(n.includes("prototype")) return 1000;
+    if(n.includes("homologation")) return 1500;
+    if(n.includes("industrialisation")) return 1200;
+    return 1200;
   }
 
   function formatEUR(n){
@@ -855,7 +870,7 @@
   }
 
   function buildCatalogFromRows(rows){
-    const header = rows[0].map(h => normalizeKey(h));
+    const header = rows[0].map(normalizeKey);
     const idx = (name) => header.indexOf(name);
 
     const iPack = idx("PackName");
@@ -863,10 +878,9 @@
     const iService = idx("ServiceName");
     const iInfo = idx("Info");
     const iUnit = idx("UnitPrice");
-    const iDef = idx("DefaultQty");
 
-    if([iPack, iGroup, iService, iInfo, iUnit, iDef].some(x => x < 0)){
-      throw new Error("Colonnes manquantes dans le CSV");
+    if([iPack, iGroup, iService, iInfo, iUnit].some(x => x < 0)){
+      throw new Error("Missing required CSV columns");
     }
 
     const packsMap = new Map();
@@ -881,7 +895,6 @@
 
       const info = normalizeKey(line[iInfo]);
       const unitPrice = parseNumber(line[iUnit]);
-      const defaultQty = clampInt(line[iDef], 0, 999);
 
       if(!packsMap.has(packName)){
         packsMap.set(packName, {
@@ -905,220 +918,286 @@
         id: serviceId,
         title: serviceName,
         info,
-        unitPrice,
-        defaultQty
+        unitPrice
       });
     }
 
     return Array.from(packsMap.values());
   }
 
-  function initialSelection(packs){
-    const sel = new Map();
+  function createInitialSelection(packs){
+    const selection = new Map();
 
-    for(const p of packs){
+    for(const pack of packs){
       const services = new Map();
-      for(const g of p.groups){
-        for(const s of g.services){
-          services.set(s.id, s.defaultQty);
+      for(const group of pack.groups){
+        for(const service of group.services){
+          services.set(service.id, 0);
         }
       }
-      sel.set(p.name, { active:false, services });
+      selection.set(pack.name, {
+        active: false,
+        services
+      });
     }
 
-    return sel;
+    return selection;
   }
 
-  function computePack(pack, packSel){
-    const base = Number(pack.basePrice) || 0;
-    const threshold = base - getDelta(pack.name);
+  function computePack(pack, packSelection){
+    const basePrice = Number(pack.basePrice) || 0;
+    const threshold = basePrice - getDelta(pack.name);
+
     let servicesSum = 0;
     let addedSum = 0;
+    let totalQty = 0;
 
-    for(const g of pack.groups){
-      for(const s of g.services){
-        const q = clampInt(packSel.services.get(s.id), 0, 999);
-        servicesSum += (Number(s.unitPrice) || 0) * q;
-        const addedQty = Math.max(0, q - clampInt(s.defaultQty, 0, 999));
-        addedSum += (Number(s.unitPrice) || 0) * addedQty;
+    for(const group of pack.groups){
+      for(const service of group.services){
+        const qty = clampInt(packSelection.services.get(service.id), 0, 999);
+        const lineTotal = (Number(service.unitPrice) || 0) * qty;
+        servicesSum += lineTotal;
+        addedSum += lineTotal;
+        totalQty += qty;
       }
     }
 
-    if(servicesSum < threshold){
+    const isUnlockable = totalQty > 0 && servicesSum >= threshold;
+
+    if(!isUnlockable){
       return {
-        ok:false,
-        message:T.outOfPack,
-        displayPrice:null,
-        isUpsell:false
+        totalQty,
+        servicesSum,
+        threshold,
+        ok: false,
+        selectable: false,
+        displayPrice: basePrice,
+        isUpsell: false,
+        helperMessage: T.composeHint
       };
     }
 
-    if(servicesSum <= base){
+    if(servicesSum <= basePrice){
       return {
-        ok:true,
-        message:"",
-        displayPrice:base,
-        isUpsell:false
+        totalQty,
+        servicesSum,
+        threshold,
+        ok: true,
+        selectable: true,
+        displayPrice: basePrice,
+        isUpsell: false,
+        helperMessage: T.readyToSelect
       };
     }
 
     const discount = addedSum * UPSELL_DISCOUNT;
-    const displayPrice = base + (addedSum - discount);
+    const displayPrice = basePrice + (addedSum - discount);
 
     return {
-      ok:true,
-      message:"",
+      totalQty,
+      servicesSum,
+      threshold,
+      ok: true,
+      selectable: true,
       displayPrice,
-      isUpsell:displayPrice > base
+      isUpsell: displayPrice > basePrice,
+      helperMessage: T.readyToSelect
     };
+  }
+
+  function escapeHtml(value){
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function clearNode(node){
+    while(node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function setLangLinks(){
+    const fr = document.getElementById("langFR");
+    const en = document.getElementById("langEN");
+    if(!fr || !en) return;
+
+    const currentUrl = new URL(window.location.href);
+
+    const frUrl = new URL(currentUrl);
+    frUrl.searchParams.set("lang", "fr");
+    fr.href = frUrl.pathname + frUrl.search;
+
+    const enUrl = new URL(currentUrl);
+    enUrl.searchParams.set("lang", "en");
+    en.href = enUrl.pathname + enUrl.search;
+
+    fr.classList.toggle("active", !IS_EN);
+    en.classList.toggle("active", IS_EN);
   }
 
   let PACKS = [];
   let SELECTION = null;
 
-  function clearNode(node){
-    while(node.firstChild) node.removeChild(node.firstChild);
+  function selectedHasUpsell(){
+    for(const pack of PACKS){
+      const sel = SELECTION.get(pack.name);
+      if(!sel || !sel.active) continue;
+      const calc = computePack(pack, sel);
+      if(calc.ok && calc.isUpsell) return true;
+    }
+    return false;
+  }
+
+  function renderPackCard(pack){
+    const sel = SELECTION.get(pack.name);
+    const calc = computePack(pack, sel);
+
+    const card = document.createElement("div");
+    card.className = "pack-card";
+    if(calc.selectable) card.classList.add("clickable");
+    if(sel.active) card.classList.add("selected");
+    if(!calc.selectable) card.classList.add("locked");
+
+    card.addEventListener("click", (event) => {
+      if(event.target.tagName === "BUTTON" || event.target.tagName === "INPUT") return;
+      if(!calc.selectable) return;
+      sel.active = !sel.active;
+      render();
+    });
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = calc.selectable ? T.readyToSelect : T.packLocked;
+    card.appendChild(meta);
+
+    const title = document.createElement("h3");
+    title.style.margin = "6px 0";
+    title.textContent = trPack(pack.name);
+    card.appendChild(title);
+
+    const price = document.createElement("div");
+    price.className = "price-hero";
+    price.textContent = formatEUR(calc.displayPrice);
+    card.appendChild(price);
+
+    if(calc.isUpsell){
+      const badge = document.createElement("div");
+      badge.className = "upsell-badge";
+      badge.textContent = T.upsellBadge;
+      card.appendChild(badge);
+    }
+
+    const helper = document.createElement("div");
+    helper.className = "helper-line";
+    helper.textContent = T.packThresholdHint(formatEUR(calc.threshold));
+    card.appendChild(helper);
+
+    const details = document.createElement("div");
+    details.className = "details";
+
+    for(const group of pack.groups){
+      const groupTitle = document.createElement("div");
+      groupTitle.className = "group-title";
+      groupTitle.textContent = trGroup(group.name);
+      details.appendChild(groupTitle);
+
+      for(const service of group.services){
+        const row = document.createElement("div");
+        row.className = "service-row";
+
+        const info = document.createElement("span");
+        info.className = "info-i";
+        info.textContent = "i";
+        info.setAttribute("data-info", trInfo(service.info || T.pending) || T.pending);
+        row.appendChild(info);
+
+        const label = document.createElement("span");
+        label.className = "service-label";
+        label.textContent = trService(service.title);
+        row.appendChild(label);
+
+        const qtyBox = document.createElement("div");
+        qtyBox.className = "qty-box";
+
+        const btnMinus = document.createElement("button");
+        btnMinus.type = "button";
+        btnMinus.textContent = "−";
+        btnMinus.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const current = clampInt(sel.services.get(service.id), 0, 999);
+          sel.services.set(service.id, clampInt(current - 1, 0, 999));
+          if(sel.active && !computePack(pack, sel).selectable){
+            sel.active = false;
+          }
+          render();
+        });
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.readOnly = true;
+        input.value = String(clampInt(sel.services.get(service.id), 0, 999));
+
+        const btnPlus = document.createElement("button");
+        btnPlus.type = "button";
+        btnPlus.textContent = "+";
+        btnPlus.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const current = clampInt(sel.services.get(service.id), 0, 999);
+          sel.services.set(service.id, clampInt(current + 1, 0, 999));
+          render();
+        });
+
+        qtyBox.appendChild(btnMinus);
+        qtyBox.appendChild(input);
+        qtyBox.appendChild(btnPlus);
+        row.appendChild(qtyBox);
+
+        details.appendChild(row);
+      }
+    }
+
+    const hintBlock = document.createElement("div");
+    hintBlock.className = "hint-block";
+    hintBlock.textContent = calc.selectable ? T.readyToSelect : T.composeHint;
+    details.appendChild(hintBlock);
+
+    card.appendChild(details);
+
+    return { card, calc };
   }
 
   function render(){
     const grid = document.getElementById("grid");
     clearNode(grid);
 
+    let selectedCount = 0;
     let total = 0;
-    let count = 0;
-    let hasError = false;
+    let hasInvalidSelection = false;
 
     for(const pack of PACKS){
       const sel = SELECTION.get(pack.name);
-      const calc = computePack(pack, sel);
+      const { card, calc } = renderPackCard(pack);
 
-      const card = document.createElement("div");
-      card.className = "pack-card";
-      if(sel.active) card.classList.add("selected");
-      if(!calc.ok) card.classList.add("disabled");
-
-      card.addEventListener("click", (e) => {
-        if(e.target.tagName === "BUTTON" || e.target.tagName === "INPUT") return;
-        if(!calc.ok) return;
-        sel.active = !sel.active;
-        render();
-      });
-
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      card.appendChild(meta);
-
-      const title = document.createElement("h3");
-      title.style.margin = "6px 0";
-      title.textContent = trPack(pack.name);
-      card.appendChild(title);
-
-      const price = document.createElement("div");
-      price.className = "price-hero";
-      price.textContent = calc.ok ? formatEUR(calc.displayPrice) : "";
-      card.appendChild(price);
-
-      if(calc.isUpsell){
-        const badge = document.createElement("div");
-        badge.className = "upsell-badge";
-        badge.textContent = T.upsellBadge;
-        card.appendChild(badge);
-      }
-
-      const details = document.createElement("div");
-      details.className = "details";
-
-      for(const group of pack.groups){
-        const gTitle = document.createElement("div");
-        gTitle.className = "group-title";
-        gTitle.textContent = trGroup(group.name);
-        details.appendChild(gTitle);
-
-        for(const svc of group.services){
-          const row = document.createElement("div");
-          row.className = "service-row";
-
-          const info = document.createElement("span");
-          info.className = "info-i";
-          info.textContent = "i";
-          info.setAttribute("data-info", trInfo(svc.info || T.pending) || T.pending);
-          row.appendChild(info);
-
-          const label = document.createElement("span");
-          label.className = "service-label";
-          label.textContent = trService(svc.title);
-          row.appendChild(label);
-
-          const qtyBox = document.createElement("div");
-          qtyBox.className = "qty-box";
-
-          const btnMinus = document.createElement("button");
-          btnMinus.type = "button";
-          btnMinus.textContent = "−";
-          btnMinus.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            const cur = clampInt(sel.services.get(svc.id), 0, 999);
-            sel.services.set(svc.id, clampInt(cur - 1, 0, 999));
-            render();
-          });
-
-          const input = document.createElement("input");
-          input.type = "text";
-          input.readOnly = true;
-          input.value = String(clampInt(sel.services.get(svc.id), 0, 999));
-
-          const btnPlus = document.createElement("button");
-          btnPlus.type = "button";
-          btnPlus.textContent = "+";
-          btnPlus.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            const cur = clampInt(sel.services.get(svc.id), 0, 999);
-            sel.services.set(svc.id, clampInt(cur + 1, 0, 999));
-            render();
-          });
-
-          qtyBox.appendChild(btnMinus);
-          qtyBox.appendChild(input);
-          qtyBox.appendChild(btnPlus);
-          row.appendChild(qtyBox);
-
-          details.appendChild(row);
+      if(sel.active){
+        if(calc.ok){
+          selectedCount += 1;
+          total += calc.displayPrice;
+        } else {
+          hasInvalidSelection = true;
         }
-      }
-
-      if(!calc.ok){
-        const warn = document.createElement("div");
-        warn.className = "warn";
-        warn.textContent = calc.message;
-        details.appendChild(warn);
-      }
-
-      card.appendChild(details);
-
-      if(sel.active && calc.ok){
-        total += calc.displayPrice;
-        count += 1;
-      }
-
-      if(sel.active && !calc.ok){
-        hasError = true;
       }
 
       grid.appendChild(card);
     }
 
     document.getElementById("grandTotal").textContent = formatEUR(total);
-    document.getElementById("statusText").textContent = T.packsSelected(count);
-    document.getElementById("btnBooking").disabled = (count === 0 || hasError);
-  }
+    document.getElementById("statusText").textContent = selectedCount > 0
+      ? T.statusTextSelected(selectedCount)
+      : T.statusTextEmpty;
 
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+    document.getElementById("btnBooking").disabled = selectedCount === 0 || hasInvalidSelection;
   }
 
   function buildRecapHTML(){
@@ -1131,38 +1210,30 @@
 
       const calc = computePack(pack, sel);
 
-      html += `<div class="recap-pack"><div class="recap-pack-title">${escapeHtml(trPack(pack.name))}</div>`;
-
-      if(!calc.ok){
-        html += `<div class="recap-line" style="color:#ad6c93;font-weight:900;">${escapeHtml(T.outOfPackLabel)}</div></div>`;
-        continue;
-      }
+      html += `<div class="recap-pack">`;
+      html += `<div class="recap-pack-title">${escapeHtml(trPack(pack.name))}</div>`;
 
       for(const group of pack.groups){
-        for(const svc of group.services){
-          const q = clampInt(sel.services.get(svc.id), 0, 999);
-          if(q > 0){
-            html += `<div class="recap-line"><div>${escapeHtml(trService(svc.title))} x ${q}</div></div>`;
+        for(const service of group.services){
+          const qty = clampInt(sel.services.get(service.id), 0, 999);
+          if(qty > 0){
+            html += `<div class="recap-line"><div>${escapeHtml(trService(service.title))} x ${qty}</div></div>`;
           }
         }
       }
 
-      html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div></div>`;
-      grandTotal += calc.displayPrice;
+      if(!calc.ok){
+        html += `<div class="recap-total"><div>${escapeHtml(T.outOfPackLabel)}</div><div>${formatEUR(calc.servicesSum)}</div></div>`;
+      } else {
+        html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
+        grandTotal += calc.displayPrice;
+      }
+
+      html += `</div>`;
     }
 
     html += `<div class="recap-grand"><div>${escapeHtml(T.grandTotalLabel)}</div><div>${formatEUR(grandTotal)}</div></div>`;
     return html;
-  }
-
-  function selectedHasUpsell(){
-    for(const pack of PACKS){
-      const sel = SELECTION.get(pack.name);
-      if(!sel || !sel.active) continue;
-      const calc = computePack(pack, sel);
-      if(calc.ok && calc.isUpsell) return true;
-    }
-    return false;
   }
 
   function openLeadModal(){
@@ -1174,14 +1245,12 @@
     document.getElementById("leadModal").style.display = "none";
   }
 
-  async function boot(){
-    setLangLinks();
-
+  function applyStaticTexts(){
     document.documentElement.lang = IS_EN ? "en" : "fr";
 
     document.getElementById("pageTitle").textContent = T.pageTitle;
     document.getElementById("pageSubtitle").textContent = T.pageSubtitle;
-    document.getElementById("statusText").textContent = T.statusText;
+    document.getElementById("statusText").textContent = T.statusTextEmpty;
     document.getElementById("btnBooking").textContent = T.btnBooking;
 
     document.getElementById("leadTitle").textContent = T.leadTitle;
@@ -1202,49 +1271,63 @@
 
     document.getElementById("recapTitle").textContent = T.recapTitle;
     document.getElementById("sendLead").textContent = T.send;
+    document.getElementById("leadHint").textContent = T.noPackSelectedHint;
+  }
 
-    const res = await fetch(SHEET_CSV_URL, { cache:"no-store" });
-    if(!res.ok) return;
+  async function boot(){
+    setLangLinks();
+    applyStaticTexts();
 
-    const text = await res.text();
-    PACKS = buildCatalogFromRows(parseCsv(text));
-    SELECTION = initialSelection(PACKS);
+    const status = document.getElementById("status");
+    status.textContent = "";
 
-    document.getElementById("status").textContent = "";
+    try {
+      const res = await fetch(SHEET_CSV_URL, { cache:"no-store" });
+      if(!res.ok) throw new Error("Catalog fetch failed");
 
-    document.getElementById("btnBooking").addEventListener("click", openLeadModal);
-    document.getElementById("closeLeadModal").addEventListener("click", closeLeadModal);
+      const text = await res.text();
+      PACKS = buildCatalogFromRows(parseCsv(text));
+      SELECTION = createInitialSelection(PACKS);
 
-    document.getElementById("sendLead").addEventListener("click", async () => {
-      const bookingUrl = IS_EN ? BOOKING_URL_EN : BOOKING_URL_FR;
+      document.getElementById("btnBooking").addEventListener("click", openLeadModal);
+      document.getElementById("closeLeadModal").addEventListener("click", closeLeadModal);
 
-      const payload = {
-        lang: IS_EN ? "en" : "fr",
-        bookingUrl,
-        company: document.getElementById("fCompany").value.trim(),
-        firstname: document.getElementById("fFirst").value.trim(),
-        lastname: document.getElementById("fLast").value.trim(),
-        email: document.getElementById("fEmail").value.trim(),
-        phone: document.getElementById("fPhone").value.trim(),
-        recap: document.getElementById("fRecap").innerText,
-        hasUpsell: selectedHasUpsell()
-      };
+      document.getElementById("sendLead").addEventListener("click", async () => {
+        const bookingUrl = IS_EN ? BOOKING_URL_EN : BOOKING_URL_FR;
 
-      if(!payload.company || !payload.firstname || !payload.lastname || !payload.email || !payload.phone) return;
+        const payload = {
+          lang: IS_EN ? "en" : "fr",
+          bookingUrl,
+          company: document.getElementById("fCompany").value.trim(),
+          firstname: document.getElementById("fFirst").value.trim(),
+          lastname: document.getElementById("fLast").value.trim(),
+          email: document.getElementById("fEmail").value.trim(),
+          phone: document.getElementById("fPhone").value.trim(),
+          recap: document.getElementById("fRecap").innerText,
+          hasUpsell: selectedHasUpsell()
+        };
 
-      try {
-        await fetch(WORKER_SEND_URL, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify(payload)
-        });
+        if(!payload.company || !payload.firstname || !payload.lastname || !payload.email || !payload.phone){
+          return;
+        }
 
-        window.open(bookingUrl, "_blank");
-        closeLeadModal();
-      } catch(e) {}
-    });
+        try {
+          await fetch(WORKER_SEND_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
 
-    render();
+          window.open(bookingUrl, "_blank");
+          closeLeadModal();
+        } catch(error) {
+        }
+      });
+
+      render();
+    } catch(error) {
+      status.textContent = "Unable to load the catalog.";
+    }
   }
 
   boot();

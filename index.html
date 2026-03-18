@@ -13,7 +13,6 @@
       --grey:#abb8c3;
       --white:#ffffff;
       --gold:#d4af37;
-      --soft-warning:#f6eef3;
       --line:#ececf0;
     }
 
@@ -74,24 +73,25 @@
       flex:1;
     }
 
-    .meta{
-      min-height:0;
-      margin:0;
-      font-size:0;
-      line-height:0;
-    }
-
     .pack-title{
-      margin:0 0 6px 0;
+      margin:0 0 8px 0;
       font-size:1.35rem;
       line-height:1.2;
+    }
+
+    .price-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
     .price-hero{
       font-size:2.2rem;
       font-weight:800;
       color:var(--accent);
-      margin:8px 0 0;
+      margin:0;
+      line-height:1;
     }
 
     .pack-top-right{
@@ -132,16 +132,6 @@
       font-weight:700;
       display:inline-block;
       margin-top:10px;
-    }
-
-    .summary-line{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
-      font-size:.9rem;
-      opacity:.9;
     }
 
     .info-i{
@@ -261,18 +251,6 @@
       border-radius:14px;
     }
 
-    .status-lock{
-      color:var(--accent);
-      font-weight:800;
-      font-size:.92rem;
-    }
-
-    .status-ok{
-      color:var(--p-dark);
-      font-weight:800;
-      font-size:.92rem;
-    }
-
     .actions-row{
       display:flex;
       justify-content:space-between;
@@ -280,6 +258,20 @@
       gap:12px;
       margin-top:6px;
       flex-wrap:wrap;
+    }
+
+    .status-lock{
+      color:var(--accent);
+      font-weight:800;
+      font-size:.92rem;
+      line-height:1.4;
+    }
+
+    .status-ok{
+      color:var(--p-dark);
+      font-weight:800;
+      font-size:.92rem;
+      line-height:1.4;
     }
 
     .btn-linkish{
@@ -742,12 +734,14 @@
       choosePack: "Choisir ce pack",
       selectedPack: "Pack sélectionné",
       readyToSelect: "Offre préférentielle disponible",
-      packLocked: "Ajoutez des quantités pour débloquer le prix pack",
+      packLocked: "Composez votre pack",
       selectedHint: "Ce pack est inclus dans votre sélection.",
       bookingHint: "Sélectionnez au moins un pack pour continuer.",
       aLaCarteInfo: "Composez votre pack pour atteindre l’offre préférentielle ou contactez-nous pour passer aux services à la carte : contact@bridgingsolutions.fr ou +33(0)9 50 09 66 36",
       removePack: "Retirer ce pack",
-      upsellBadge: "-2% appliqués par service additionnel"
+      upsellBadge: "-2% appliqués par service additionnel",
+      packPriceLabel: "Prix pack",
+      grandTotalLabel: "Total général HT"
     },
     en: {
       pageTitle: "Your startup pack",
@@ -776,12 +770,14 @@
       choosePack: "Choose this pack",
       selectedPack: "Pack selected",
       readyToSelect: "Preferential offer available",
-      packLocked: "Add quantities to unlock the pack price",
+      packLocked: "Build your pack",
       selectedHint: "This pack is included in your selection.",
       bookingHint: "Select at least one pack to continue.",
       aLaCarteInfo: "Build your pack to reach the preferential offer, or contact us to move to à la carte services: contact@bridgingsolutions.fr or +33(0)9 50 09 66 36",
       removePack: "Remove this pack",
-      upsellBadge: "-2% applied on each additional service"
+      upsellBadge: "-2% applied on each additional service",
+      packPriceLabel: "Pack price",
+      grandTotalLabel: "Grand total excl. VAT"
     }
   };
 
@@ -1044,7 +1040,7 @@
 
   function computePack(pack, packSelection){
     const basePrice = Number(pack.basePrice) || 0;
-    const threshold = basePrice - getDelta(pack.name);
+    const lowerThreshold = basePrice - getDelta(pack.name);
 
     let servicesSum = 0;
     let totalQty = 0;
@@ -1058,41 +1054,25 @@
       }
     }
 
-    const selectable = totalQty > 0 && servicesSum >= threshold;
+    const selectable = totalQty > 0 && servicesSum >= lowerThreshold;
 
-    if(!selectable){
-      return {
-        totalQty,
-        servicesSum,
-        threshold,
-        selectable: false,
-        displayPrice: basePrice,
-        isUpsell: false
-      };
+    let displayPrice = basePrice;
+    let isUpsell = false;
+
+    if(servicesSum > basePrice){
+      const extraOverBase = servicesSum - basePrice;
+      const discountedExtra = extraOverBase * (1 - UPSELL_DISCOUNT);
+      displayPrice = basePrice + discountedExtra;
+      isUpsell = true;
     }
-
-    if(servicesSum <= basePrice){
-      return {
-        totalQty,
-        servicesSum,
-        threshold,
-        selectable: true,
-        displayPrice: basePrice,
-        isUpsell: false
-      };
-    }
-
-    const addedSum = servicesSum;
-    const discount = addedSum * UPSELL_DISCOUNT;
-    const displayPrice = basePrice + (addedSum - discount);
 
     return {
       totalQty,
       servicesSum,
-      threshold,
-      selectable: true,
+      lowerThreshold,
+      selectable,
       displayPrice,
-      isUpsell: displayPrice > basePrice
+      isUpsell
     };
   }
 
@@ -1142,7 +1122,7 @@
     return false;
   }
 
-  function closeOtherPacks(packName){
+  function togglePack(packName){
     OPEN_PACK_NAME = (OPEN_PACK_NAME === packName) ? null : packName;
   }
 
@@ -1179,27 +1159,33 @@
     const top = document.createElement("div");
     top.className = "pack-top";
     top.addEventListener("click", () => {
-      closeOtherPacks(pack.name);
+      togglePack(pack.name);
       render();
     });
 
     const topLeft = document.createElement("div");
     topLeft.className = "pack-top-left";
 
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.textContent = "";
-    topLeft.appendChild(meta);
-
     const title = document.createElement("h3");
     title.className = "pack-title";
     title.textContent = trPack(pack.name);
     topLeft.appendChild(title);
 
+    const priceRow = document.createElement("div");
+    priceRow.className = "price-row";
+
     const price = document.createElement("div");
     price.className = "price-hero";
     price.textContent = formatEUR(calc.displayPrice);
-    topLeft.appendChild(price);
+    priceRow.appendChild(price);
+
+    const info = document.createElement("span");
+    info.className = "info-i";
+    info.setAttribute("data-info", T.aLaCarteInfo);
+    info.textContent = "i";
+    priceRow.appendChild(info);
+
+    topLeft.appendChild(priceRow);
 
     if(calc.isUpsell){
       const badge = document.createElement("div");
@@ -1207,17 +1193,6 @@
       badge.textContent = T.upsellBadge;
       topLeft.appendChild(badge);
     }
-
-    const summaryLine = document.createElement("div");
-    summaryLine.className = "summary-line";
-
-    const info = document.createElement("span");
-    info.className = "info-i";
-    info.setAttribute("data-info", T.aLaCarteInfo);
-    info.textContent = "i";
-    summaryLine.appendChild(info);
-
-    topLeft.appendChild(summaryLine);
 
     const topRight = document.createElement("div");
     topRight.className = "pack-top-right";
@@ -1228,7 +1203,7 @@
     toggleBtn.textContent = isOpen ? T.closePack : T.openPack;
     toggleBtn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      closeOtherPacks(pack.name);
+      togglePack(pack.name);
       render();
     });
     topRight.appendChild(toggleBtn);
@@ -1357,8 +1332,8 @@
 
     builderPanel.appendChild(actions);
     details.appendChild(builderPanel);
-
     card.appendChild(details);
+
     return { card, calc };
   }
 
@@ -1411,13 +1386,13 @@
         }
       }
 
-      html += `<div class="recap-total"><div>${escapeHtml("Prix pack")}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
+      html += `<div class="recap-total"><div>${escapeHtml(T.packPriceLabel)}</div><div>${formatEUR(calc.displayPrice)}</div></div>`;
       html += `</div>`;
 
       grandTotal += calc.displayPrice;
     }
 
-    html += `<div class="recap-grand"><div>${escapeHtml(IS_EN ? "Grand total excl. VAT" : "Total général HT")}</div><div>${formatEUR(grandTotal)}</div></div>`;
+    html += `<div class="recap-grand"><div>${escapeHtml(T.grandTotalLabel)}</div><div>${formatEUR(grandTotal)}</div></div>`;
     return html;
   }
 

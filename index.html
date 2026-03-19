@@ -56,6 +56,12 @@
       border-color:#ddd;
     }
 
+    .pack-card.ready{
+      border-color:var(--accent);
+      background:#f8f1f5;
+      box-shadow:0 10px 24px rgba(173,108,147,.12);
+    }
+
     .pack-card.selected{
       border-color:var(--p-dark);
       background:var(--pink-soft);
@@ -266,7 +272,7 @@
     }
 
     .status-ok{
-      color:var(--p-dark);
+      color:var(--accent);
       font-weight:800;
       font-size:.92rem;
       line-height:1.4;
@@ -1149,6 +1155,7 @@
     card.className = "pack-card";
     if(isOpen) card.classList.add("open");
     if(sel.active) card.classList.add("selected");
+    if(calc.selectable && !sel.active) card.classList.add("ready");
 
     card.addEventListener("click", () => {
       togglePack(pack.name);
